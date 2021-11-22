@@ -1,0 +1,26 @@
+"""App development configurations"""
+
+from os import getenv
+
+# Application
+APP_NAME = getenv('APP_NAME')
+SECRET_KEY = getenv('SECRET_KEY')
+WTF_CSRF_ENABLED = True
+DEBUG = True
+
+# Postgres service
+POSTGRES_DB_HOST = getenv('POSTGRES_DB_HOST')
+POSTGRES_DB_PORT = getenv('POSTGRES_DB_PORT')
+
+# Postgres database
+POSTGRES_DB_NAME = getenv('POSTGRES_DB_NAME')
+POSTGRES_DB_USER = getenv('POSTGRES_DB_USER')
+POSTGRES_DB_PASSWORD = getenv('POSTGRES_DB_PASSWORD')
+
+# SQLAlchemy
+SQLALCHEMY_DATABASE_URI = (
+    f'postgresql://'
+    f'{POSTGRES_DB_USER}:{POSTGRES_DB_PASSWORD}'
+    f'@{POSTGRES_DB_HOST}:{POSTGRES_DB_PORT}/{POSTGRES_DB_NAME}'
+)
+SQLALCHEMY_TRACK_MODIFICATIONS = getenv('SQLALCHEMY_TRACK_MODIFICATIONS')

@@ -1,0 +1,36 @@
+version: '3.3'
+
+services:
+  db:
+    image: postgres:13-alpine
+    restart: always
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    environment:
+      POSTGRES_USER: ${POSTGRES_DB_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_DB_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB_NAME}
+    container_name: db_${APP_NAME}
+    hostname: ${POSTGRES_DB_HOST}
+    ports:
+      - ${POSTGRES_DB_PORT}:${POSTGRES_DB_PORT}
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    command: python manage.py run -h ${APP_HOST} -p ${APP_PORT}
+    volumes:
+      - .:/usr/src/app/
+    env_file:
+      - .env
+    container_name: ${APP_NAME}
+    hostname: ${APP_NAME}
+    depends_on:
+      - db
+    ports:
+      - ${APP_PORT}:${APP_PORT}
+
+volumes:
+  postgres_data:
