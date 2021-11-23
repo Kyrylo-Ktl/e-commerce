@@ -1,0 +1,83 @@
+{% extends "form_base.html" %}
+{% block content %}
+<div class="content-section">
+    <form method="POST" action="" enctype="multipart/form-data">
+        {{ form.hidden_tag() }}
+        <fieldset class="form-group">
+            <legend class="border-bottom mb-4 center-text">Create new product</legend>
+
+            {% for field in [form.name, form.short_description, form.full_description] %}
+            <div class="form-group">
+                {{ field.label(class="form-control-label") }}
+                {% if field.errors %}
+                {{ field(class="form-control is-invalid") }}
+                <div class="invalid-feedback">
+                    {% for error in field.errors %}
+                    <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+                {% else %}
+                {{ field(class="form-control ") }}
+                {% endif %}
+            </div>
+            {% endfor %}
+
+            <div class="form-group">
+                {{ form.picture.label() }}
+                {{ form.picture(class="form-control-file") }}
+                {% if form.picture.errors %}
+                {% for error in form.picture.errors %}
+                <span class="text-danger">{{ error }}</span>
+                {% endfor %}
+                {% endif %}
+            </div>
+
+            <div class="form-row">
+                {% for field in [form.price, form.amount, form.discount] %}
+                <div class="form-group col-md-4">
+                    <div class="form-group">
+                        {{ field.label(class="form-control-label") }}
+                        {% if field.errors %}
+                        {{ field(class="form-control is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in field.errors %}
+                            <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        {{ field(class="form-control ") }}
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="form-row">
+                {% for field in [form.brand, form.category] %}
+                <div class="form-group col-md-6">
+                    <div class="form-group">
+                        {{ field.label(class="form-control-label") }}
+                        {% if field.errors %}
+                        {{ field(class="form-control is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in field.errors %}
+                            <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        {{ field(class="form-control") }}
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </fieldset>
+
+        <div class="form-group">
+            {{ form.submit(class="btn btn-success full-width") }}
+        </div>
+    </form>
+</div>
+<div class="border-top pt-3">
+</div>
+{% endblock content %}

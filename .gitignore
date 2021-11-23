@@ -103,7 +103,8 @@ celerybeat.pid
 # SageMath parsed files
 *.sage.py
 
-# Databases
+# Databases and files
+*/static/products/
 *.db
 
 # Environments

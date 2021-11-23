@@ -2,9 +2,9 @@
 
 from flask_login import UserMixin
 
+from shop.bcrypt import bcrypt
 from shop.core.models import BaseModelMixin
 from shop.db import db
-from shop.bcrypt import bcrypt
 
 
 class UserModel(UserMixin, BaseModelMixin):
@@ -21,10 +21,11 @@ class UserModel(UserMixin, BaseModelMixin):
         db.CheckConstraint("email LIKE '%@%'", name='email_constraint'),
     )
 
-    def __init__(self, username: str, email: str, password: str) -> None:
+    def __init__(self, username: str, email: str, password: str, is_superuser: bool = False) -> None:
         self.email = email
         self.username = username
         self.password = password
+        self.is_superuser = is_superuser
         self.save()
 
     def __str__(self):
