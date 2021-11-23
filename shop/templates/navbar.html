@@ -10,13 +10,26 @@
         <div class="collapse navbar-collapse" id="navbarToggle">
             <!-- Navbar Left Side -->
             <div class="navbar-nav mr-auto">
-                <a class="nav-item nav-link" href="#">Home</a>
+                <a class="nav-item nav-link" href="{{ url_for('core_blueprint.home') }}">Home</a>
             </div>
 
             <!-- Navbar Right Side -->
             <div class="navbar-nav">
-                <a class="nav-item nav-link" href="#">Login</a>
-                <a class="nav-item nav-link" href="#">SignUp</a>
+                {% if current_user.is_authenticated and current_user.is_superuser %}
+                <a class="nav-item nav-link" href="#">
+                    {[ current_user.username }}
+                </a>
+                <a class="nav-item nav-link" href="{{ url_for('users_blueprint.logout') }}">Logout</a>
+                {% elif current_user.is_authenticated %}
+                <a class="nav-item nav-link" href="#">
+                    Hello, {{ current_user.username }}
+                </a>
+                <a class="nav-item nav-link" href="#">Cart: Items(0) Sum(0)</a>
+                <a class="nav-item nav-link" href="{{ url_for('users_blueprint.logout') }}">Logout</a>
+                {% else %}
+                <a class="nav-item nav-link" href="{{ url_for('users_blueprint.login') }}">Login</a>
+                <a class="nav-item nav-link" href="{{ url_for('users_blueprint.signup') }}">SignUp</a>
+                {% endif %}
             </div>
         </div>
     </div>
