@@ -87,7 +87,12 @@
                 <h3 class="product-title"><a
                         href="{{ url_for('products_blueprint.product_detail', product_id=product.id) }}">{{ product.name
                     }}</a></h3>
+                {% if product.discount %}
+                <span class="old-price">$ {{ product.price }}</span>
+                <span class="price">$ {{ product.discount_price }}</span>
+                {% else %}
                 <span class="price">$ {{ product.price }}</span>
+                {% endif %}
             </div>
             <div class="product-short-description">
                 <p>{{ product.short_description }}</p>

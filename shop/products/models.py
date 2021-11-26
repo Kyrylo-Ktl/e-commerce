@@ -99,6 +99,10 @@ class ProductModel(UserMixin, BaseModelMixin):
     def __repr__(self) -> str:
         return f"<Product: ('{self.name}')>"
 
+    @property
+    def discount_price(self):
+        return round(self.price * (1 - self.discount / 100), 2)
+
     def update_image_file(self, new_image_file: str):
         if self.image_file != new_image_file:
             self._delete_image_file()

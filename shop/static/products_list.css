@@ -118,10 +118,20 @@
    font-weight: 550;
    font-size: 14px;
 }
+
 .price {
+   font-size: 1.3em;
    font-weight: bold;
-   color: #bca480;
+   color: #333333;
 }
+
+.old-price {
+   font-size: 1em;
+   font-weight: bold;
+   color: #666666;
+   text-decoration: line-through;
+}
+
 
 .delete-list-el-button:before {
    font-family: "FontAwesome";
