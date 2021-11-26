@@ -1,0 +1,33 @@
+{% extends "form_base.html" %}
+{% block content %}
+<div class="content-section">
+    <form method="POST" action="">
+        {{ form.hidden_tag() }}
+        <fieldset class="form-group">
+            <legend class="border-bottom mb-4 center-text">Create new brand</legend>
+
+            {% for field in [form.brand_name] %}
+            <div class="form-group">
+                {{ field.label(class="form-control-label") }}
+                {% if field.errors %}
+                {{ field(class="form-control form-control-lg is-invalid") }}
+                <div class="invalid-feedback">
+                    {% for error in field.errors %}
+                    <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+                {% else %}
+                {{ field(class="form-control form-control-lg") }}
+                {% endif %}
+            </div>
+            {% endfor %}
+        </fieldset>
+
+        <div class="form-group">
+            {{ form.submit(class="btn btn-success full-width") }}
+        </div>
+    </form>
+</div>
+<div class="border-top pt-3">
+</div>
+{% endblock content %}

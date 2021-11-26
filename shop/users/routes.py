@@ -1,9 +1,9 @@
 """Module with users blueprint and its routes"""
 
-from flask import render_template, url_for, flash, redirect, request, Blueprint
-from flask_login import login_user, logout_user, current_user
+from flask import Blueprint, flash, redirect, render_template, request, url_for
+from flask_login import current_user, login_user, logout_user
 
-from shop.users.forms import RegistrationForm, LoginForm
+from shop.users.forms import LoginForm, SignUpForm
 from shop.users.models import UserModel
 
 users_blueprint = Blueprint('users_blueprint', __name__)
@@ -12,9 +12,9 @@ users_blueprint = Blueprint('users_blueprint', __name__)
 @users_blueprint.route("/signup", methods=['GET', 'POST'])
 def signup():
     if current_user.is_authenticated:
-        return redirect(url_for('core_blueprint.home'))
+        return redirect(url_for('products_blueprint.products'))
 
-    form = RegistrationForm()
+    form = SignUpForm()
     if form.validate_on_submit():
         UserModel(
             email=form.email.data,
@@ -31,7 +31,7 @@ def signup():
 @users_blueprint.route("/login", methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
-        return redirect(url_for('core_blueprint.home'))
+        return redirect(url_for('products_blueprint.products'))
 
     form = LoginForm()
     if form.validate_on_submit():
@@ -45,7 +45,7 @@ def login():
                 return redirect(next_page)
 
             flash('Successfully logged in', 'success')
-            return redirect(url_for('core_blueprint.home'))
+            return redirect(url_for('products_blueprint.products'))
         else:
             flash('Login Unsuccessful. Please check provided email and password', 'danger')
 
@@ -55,5 +55,5 @@ def login():
 @users_blueprint.route("/logout")
 def logout():
     logout_user()
-    flash('You are logged out', 'info')
-    return redirect(url_for('core_blueprint.home'))
+    flash('You are logged out', 'warning')
+    return redirect(url_for('products_blueprint.products'))

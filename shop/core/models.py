@@ -40,6 +40,15 @@ class BaseModelMixin(db.Model):
             raise err
 
     @classmethod
+    def update(cls, _id, **kwargs) -> None:
+        try:
+            cls.query.filter_by(id=_id).update(kwargs)
+            db.session.commit()
+        except IntegrityError as err:
+            db.session.rollback()
+            raise err
+
+    @classmethod
     def get(cls, **kwargs):
         instance = cls.query.filter_by(**kwargs).first()
         return instance
@@ -52,3 +61,6 @@ class BaseModelMixin(db.Model):
             instance = cls.create(**kwargs)
 
         return instance
+
+    def as_dict(self):
+        return {col.name: getattr(self, col.name) for col in self.__table__.columns}

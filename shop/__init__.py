@@ -12,6 +12,7 @@ def create_app(config_filename: str = None):
     app.config.from_pyfile(config_filename)
     Bootstrap(app)
 
+    from shop.products.models import CategoryModel, BrandModel, ProductModel
     from shop.users.models import UserModel
     login_manager = LoginManager(app)
     login_manager.login_view = 'login'
@@ -24,9 +25,9 @@ def create_app(config_filename: str = None):
     with app.app_context():
         init_database(app)
 
-        from shop.core.routes import core_blueprint
         from shop.users.routes import users_blueprint
-        app.register_blueprint(core_blueprint)
+        from shop.products.routes import products_blueprint
         app.register_blueprint(users_blueprint)
+        app.register_blueprint(products_blueprint)
 
     return app

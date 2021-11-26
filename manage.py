@@ -1,9 +1,10 @@
 """Module with shell for running app commands"""
 
+from app import app
 from flask.cli import FlaskGroup
 
-from app import app
 from shop.db import db
+from shop.seed_db import seed_admin, seed_brands, seed_categories, seed_products
 
 cli = FlaskGroup(app)
 
@@ -18,11 +19,15 @@ def create_db():
 
 @cli.command("seed_db")
 def seed_db():
-    pass
+    seed_admin()
+    seed_brands()
+    seed_categories()
+    seed_products(250)
 
 
 @cli.command("drop_db")
 def drop_db():
+    db.reflect()
     db.drop_all()
 
 

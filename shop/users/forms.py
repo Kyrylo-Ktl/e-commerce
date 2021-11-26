@@ -1,13 +1,13 @@
 """Module with forms for users blueprint"""
 
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, BooleanField
-from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError
+from wtforms import BooleanField, PasswordField, StringField, SubmitField
+from wtforms.validators import DataRequired, Email, EqualTo, Length, ValidationError
 
 from shop.users.models import UserModel
 
 
-class RegistrationForm(FlaskForm):
+class SignUpForm(FlaskForm):
     username = StringField(
         'Username',
         validators=[
