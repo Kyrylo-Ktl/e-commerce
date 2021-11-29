@@ -17,9 +17,9 @@ def products():
     brand_name = request.args.get('brand_name')
     category_name = request.args.get('category_name')
 
-    delete_product_form = forms.DeleteProductForm()
-    delete_category_form = forms.DeleteCategoryForm()
-    delete_brand_form = forms.DeleteBrandForm()
+    delete_product_form = forms.DeleteProductForm(prefix='delete_product')
+    delete_category_form = forms.DeleteCategoryForm(prefix='delete_category')
+    delete_brand_form = forms.DeleteBrandForm(prefix='delete_brand')
 
     if delete_product_form.validate_on_submit():
         if current_user.is_authenticated and current_user.is_superuser:
@@ -42,34 +42,34 @@ def products():
         return redirect(url_for('products_blueprint.products'))
 
     page = request.args.get('page', 1, type=int)
-    paginator = ProductModel.filter(
+    filtered_products = ProductModel.filter(
         category=CategoryModel.get(name=category_name),
         brand=BrandModel.get(name=brand_name),
-    ).order_by(ProductModel.name).paginate(page, 8, False)
+    )
+    paginator = ProductModel.get_pagination(page, filtered_products)
 
     context = {
-        'pagination': paginator,
         'products': paginator.items,
+        'pagination': paginator,
+        'page': page,
         'categories': CategoryModel.get_all(),
         'brands': BrandModel.get_all(),
         'delete_product_form': delete_product_form,
         'delete_category_form': delete_category_form,
         'delete_brand_form': delete_brand_form,
-        'page': page,
     }
     kwargs = {
         'brand_name': request.args.get('brand_name'),
         'category_name': request.args.get('category_name'),
     }
-    print(dict(**request.args))
     return render_template('products/products_list.html', **context, kwargs=kwargs)
 
 
 @products_blueprint.route("/product_detail/<int:product_id>", methods=['GET', 'POST'])
 def product_detail(product_id: int):
     product = ProductModel.get(id=product_id)
-    add_to_cart_form = forms.AddToCardForm()
-    delete_product_form = forms.DeleteProductForm()
+    add_to_cart_form = forms.AddToCardForm(prefix='add_to_card')
+    delete_product_form = forms.DeleteProductForm(prefix='delete_product')
 
     if product is None:
         return abort(404)

@@ -1,11 +1,11 @@
 """Models for users blueprint"""
 
 import os
-from typing import List
+from typing import List, Optional
 
 from flask import current_app
 from flask_login import UserMixin
-from flask_sqlalchemy import BaseQuery
+from flask_sqlalchemy import BaseQuery, Pagination
 from sqlalchemy.orm import backref
 
 from shop.core.models import BaseModelMixin
@@ -73,6 +73,7 @@ class ProductModel(UserMixin, BaseModelMixin):
 
     __tablename__ = 'products'
 
+    PAGINATE_BY = 8
     IMAGE_DIR = 'products'
     IMAGE_SIZE = (500, 500)
     DEFAULT_IMAGE = os.path.join(
@@ -131,6 +132,12 @@ class ProductModel(UserMixin, BaseModelMixin):
     def delete(self) -> None:
         self._delete_image_file()
         return super(ProductModel, self).delete()
+
+    @classmethod
+    def get_pagination(cls, page: int = 1, query: Optional[BaseQuery] = None) -> Pagination:
+        if query is None:
+            query = cls.query
+        return query.order_by(cls.name).paginate(page, cls.PAGINATE_BY, False)
 
     @classmethod
     def filter(cls, **kwargs) -> BaseQuery:
