@@ -41,18 +41,28 @@ def products():
         brand.delete()
         return redirect(url_for('products_blueprint.products'))
 
+    page = request.args.get('page', 1, type=int)
+    paginator = ProductModel.filter(
+        category=CategoryModel.get(name=category_name),
+        brand=BrandModel.get(name=brand_name),
+    ).order_by(ProductModel.name).paginate(page, 8, False)
+
     context = {
-        'products': ProductModel.filter(
-            category=CategoryModel.get(name=category_name),
-            brand=BrandModel.get(name=brand_name),
-        ).order_by(ProductModel.name).all(),
+        'pagination': paginator,
+        'products': paginator.items,
         'categories': CategoryModel.get_all(),
         'brands': BrandModel.get_all(),
         'delete_product_form': delete_product_form,
         'delete_category_form': delete_category_form,
         'delete_brand_form': delete_brand_form,
+        'page': page,
     }
-    return render_template('products/products_list.html', **context)
+    kwargs = {
+        'brand_name': request.args.get('brand_name'),
+        'category_name': request.args.get('category_name'),
+    }
+    print(dict(**request.args))
+    return render_template('products/products_list.html', **context, kwargs=kwargs)
 
 
 @products_blueprint.route("/product_detail/<int:product_id>", methods=['GET', 'POST'])

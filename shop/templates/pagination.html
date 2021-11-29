@@ -1,0 +1,27 @@
+{% macro render_pagination(pagination, endpoint, page) %}
+{% if pagination and pagination.pages != 1 %}
+<div class="container-navbar">
+    {% if pagination.has_prev %}
+    <a class="btn btn-outline-info mb-4" href="{{ url_for(endpoint, page=1, **kwargs) }}">First</a>
+    <a class="btn btn-outline-info mb-4" href="{{ url_for(endpoint, page=pagination.prev_num, **kwargs) }}">Previous</a>
+    {% endif %}
+
+    {% for num in pagination.iter_pages(left_edge=2, left_current=2, right_current=3, right_edge=2) %}
+    {% if num %}
+    {% if page == num %}
+    <a class="btn btn-primary mb-4" href="{{ url_for(endpoint, page=num, **kwargs) }}">{{ num }}</a>
+    {% else %}
+    <a class="btn btn-outline-info mb-4" href="{{ url_for(endpoint, page=num, **kwargs) }}">{{ num }}</a>
+    {% endif %}
+    {% else %}
+    <a class="btn btn-outline-secondary mb-4" href="">...</a>
+    {% endif %}
+    {% endfor %}
+
+    {% if pagination.has_next %}
+    <a class="btn btn-outline-info mb-4" href="{{ url_for(endpoint, page=pagination.next_num, **kwargs) }}">Next</a>
+    <a class="btn btn-outline-info mb-4" href="{{ url_for(endpoint, page=pagination.pages, **kwargs) }}">Last</a>
+    {% endif %}
+</div>
+{% endif %}
+{% endmacro %}
