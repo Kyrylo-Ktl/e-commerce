@@ -30,6 +30,11 @@ class BrandModel(UserMixin, BaseModelMixin):
     def __repr__(self):
         return f"<Brand: ('{self.name}')>"
 
+    def delete(self) -> None:
+        for product in self.products:
+            product.delete()
+        return super(BrandModel, self).delete()
+
     @classmethod
     def get_all(cls) -> List:
         return cls.query.order_by(cls.name).all()
@@ -52,6 +57,11 @@ class CategoryModel(UserMixin, BaseModelMixin):
 
     def __repr__(self):
         return f"<Category: ('{self.name}')>"
+
+    def delete(self) -> None:
+        for product in self.products:
+            product.delete()
+        return super(CategoryModel, self).delete()
 
     @classmethod
     def get_all(cls) -> List:
