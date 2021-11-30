@@ -73,10 +73,15 @@
                        class="view"></a>
                     <a href="{{ url_for('products_blueprint.product_update',  product_id=product.id) }}"
                        class="update"></a>
-                    {% elif current_user.is_authenticated %}
+                    {% elif current_user.is_authenticated and product.available %}
                     <a href="{{ url_for('products_blueprint.product_detail', product_id=product.id) }}" class="view"
                        style="width: 50%"></a>
-                    <a href="" class="add-to-cart" style="width: 50%"></a>
+                    {% set form_id=product.id|string + "_add_to_cart" -%}
+                    <form method="POST" action="" id={{ form_id }}>
+                        {{ add_to_cart_form.hidden_tag() }}
+                        {{ add_to_cart_form.product_id(value=product.id) }}
+                        <a href="javascript:$('#{{ form_id }}').submit();" class="add-to-cart" style="width: 50%"></a>
+                    </form>
                     {% else %}
                     <a href="{{ url_for('products_blueprint.product_detail', product_id=product.id) }}" class="view"
                        style="width: 100%"></a>
@@ -84,9 +89,11 @@
                 </div>
             </div>
             <div class="product-info">
-                <h3 class="product-title"><a
-                        href="{{ url_for('products_blueprint.product_detail', product_id=product.id) }}">{{ product.name
-                    }}</a></h3>
+                <h3 class="product-title">
+                    <a href="{{ url_for('products_blueprint.product_detail', product_id=product.id) }}">
+                        {{ product.name }}
+                    </a>
+                </h3>
                 {% if product.discount %}
                 <span class="old-price">$ {{ product.price }}</span>
                 <span class="price">$ {{ product.discount_price }}</span>

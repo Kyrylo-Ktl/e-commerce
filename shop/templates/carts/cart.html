@@ -1,0 +1,92 @@
+{% extends "layout.html" %}
+
+{% block addition_styles %}
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='cart.css') }}">
+{% endblock addition_styles %}
+
+{% block main %}
+<div class="row">
+    <div class="col-md-12">
+        {% if items %}
+        <ul class="products clearfix">
+            {% for item in items %}
+            {% set product, amount=item -%}
+            <li class="wrapper">
+                <div class="product-inner">
+                    <div class="product-wrap">
+                        {% if product.discount %}
+                        <span class="discount">-{{ product.discount }}% OFF</span>
+                        {% endif %}
+                        <form method="POST" action="">
+                            {{ update_amount_form.hidden_tag() }}
+                            {{ update_amount_form.product_id(value=product.id) }}
+                            {{ update_amount_form.new_amount(value=0, hidden=True) }}
+                            <button type="submit" class="btn btn-danger btn-remove"></button>
+                        </form>
+
+                        <img src="{{ url_for('static', filename=product.image_file) }}">
+                        <div class="actions">
+                            <a href="{{ url_for('products_blueprint.product_detail', product_id=product.id) }}"
+                               class="view"></a>
+                        </div>
+                    </div>
+                    <div class="product-info">
+                        <span class="product-title">
+                            <a href="{{ url_for('products_blueprint.product_detail', product_id=product.id) }}">
+                                {{ product.name }}
+                            </a>
+                        </span>
+
+                        <table class="total-table">
+                            <colgroup>
+                                <col style="width: 25%">
+                                <col style="width: 18%">
+                                <col style="width: 57%">
+                            </colgroup>
+
+                            <thead>
+                            <tr>
+                                <td colspan="2">Amount</td>
+                                <td>Total sum</td>
+                            </tr>
+                            </thead>
+
+                            <tbody>
+                            <tr>
+                                <form method="POST" action="">
+                                    {{ update_amount_form.hidden_tag() }}
+                                    {{ update_amount_form.product_id(value=product.id) }}
+
+                                    <td>
+                                        {{ update_amount_form.new_amount(value=amount, class="form-control",
+                                        max=product.available + amount) }}
+                                    </td>
+                                    <td>
+                                        <button type="submit" class="btn btn-success btn-update full-width"></button>
+                                    </td>
+                                </form>
+                                <td>
+                                    {% if product.discount %}
+                                    <span class="old-price">${{ '%0.2f'| format(amount * product.price|float) }}</span>
+                                    <span class="price">${{ '%0.2f'| format(amount * product.discount_price|float) }}</span>
+                                    {% else %}
+                                    <span class="price">${{ '%0.2f'| format(amount * product.price|float) }}</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </li>
+        {% endfor %}
+        </ul>
+        {% else %}
+        <div class="empty-cart">
+            <img src="{{ url_for('static', filename='default/' + 'empty_cart.png') }}"/>
+            <span class="center-text">Oops, it looks like your cart is empty...</span>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock main %}
