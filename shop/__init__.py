@@ -5,6 +5,7 @@ from flask_bootstrap import Bootstrap
 
 from shop.db import init_database
 from flask_login import LoginManager
+from shop.carts.session_handler import SessionCart
 
 
 def create_app(config_filename: str = None):
@@ -22,12 +23,21 @@ def create_app(config_filename: str = None):
     def load_user(user_id):
         return UserModel.query.get(int(user_id))
 
+    @app.context_processor
+    def cart_summary_processor():
+        return {
+            'cart_size': SessionCart.get_items_count,
+            'cart_total': SessionCart.get_total_sum,
+        }
+
     with app.app_context():
         init_database(app)
 
         from shop.users.routes import users_blueprint
         from shop.products.routes import products_blueprint
+        from shop.carts.routes import carts_blueprint
         app.register_blueprint(users_blueprint)
         app.register_blueprint(products_blueprint)
+        app.register_blueprint(carts_blueprint)
 
     return app

@@ -3,6 +3,7 @@
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_user, logout_user
 
+from shop.carts.session_handler import SessionCart
 from shop.users.forms import LoginForm, SignUpForm
 from shop.users.models import UserModel
 
@@ -39,6 +40,7 @@ def login():
 
         if user and user.check_password(form.password.data):
             login_user(user, remember=form.remember.data)
+            SessionCart.init_cart()
             next_page = request.args.get('next')
 
             if next_page:
@@ -55,5 +57,6 @@ def login():
 @users_blueprint.route("/logout")
 def logout():
     logout_user()
+    SessionCart.clear_cart()
     flash('You are logged out', 'warning')
     return redirect(url_for('products_blueprint.products'))

@@ -35,6 +35,7 @@
                         <hr>
 
                         {% if current_user.is_authenticated and not current_user.is_superuser %}
+                        {% if product.available %}
                         <form method="POST" action="">
                             {{ add_to_cart_form.hidden_tag() }}
                             {{ add_to_cart_form.product_id(value=product.id) }}
@@ -44,14 +45,19 @@
                                     {{ add_to_cart_form.amount_to_add.label("Enter the quantity of the item to add to
                                     the cart,
                                     (" +
-                                    product.amount|string + " available):", class="add-label") }}
+                                    product.available|string + " available):", class="add-label") }}
 
-                                    {{ add_to_cart_form.amount_to_add(max=product.amount, class="add-amount
+                                    {{ add_to_cart_form.amount_to_add(max=product.available, class="add-amount
                                     form-control") }}
                                     {{ add_to_cart_form.submit(class="add-button btn btn-success") }}
                                 </div>
                             </fieldset>
                         </form>
+                        {% else %}
+                        <span class="available">No product in stock</span>
+                        {% endif %}
+                        {% else %}
+                        <span class="available">Available: <b>{{ product.available }}</b></span>
                         {% endif %}
                     </div>
                 </div>

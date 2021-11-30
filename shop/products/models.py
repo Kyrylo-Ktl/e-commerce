@@ -88,6 +88,7 @@ class ProductModel(UserMixin, BaseModelMixin):
     full_description = db.Column(db.String(1028))
     price = db.Column(db.Float)
     amount = db.Column(db.Integer)
+    reserved = db.Column(db.Integer, default=0)
     discount = db.Column(db.Integer)
 
     image_file = db.Column(db.String(64), nullable=False, default=DEFAULT_IMAGE)
@@ -101,6 +102,7 @@ class ProductModel(UserMixin, BaseModelMixin):
     __table_args__ = (
         db.CheckConstraint('price >= 0.01', name='product_positive_price_constraint'),
         db.CheckConstraint('amount >= 0', name='product_non_negative_amount_constraint'),
+        db.CheckConstraint('reserved <= amount', name='product_valid_reserved_amount_constraint'),
         db.CheckConstraint('discount >= 0 AND discount <= 99', name='valid_product_discount_constraint'),
     )
 
@@ -113,6 +115,10 @@ class ProductModel(UserMixin, BaseModelMixin):
     @property
     def discount_price(self):
         return round(self.price * (1 - self.discount / 100), 2)
+
+    @property
+    def available(self):
+        return self.amount - self.reserved
 
     def update_image_file(self, new_image_file: str):
         if self.image_file != new_image_file:
