@@ -13,6 +13,8 @@ class UserModel(UserMixin, BaseModelMixin):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(128), unique=True)
     email = db.Column(db.String(128), unique=True)
+    confirmed = db.Column(db.Boolean, default=False)
+    confirmation_token = db.Column(db.String(32))
     _password_hash = db.Column(db.String(128))
     is_superuser = db.Column(db.Boolean, default=False)
 
@@ -21,11 +23,13 @@ class UserModel(UserMixin, BaseModelMixin):
         db.CheckConstraint("email LIKE '%@%'", name='email_constraint'),
     )
 
-    def __init__(self, username: str, email: str, password: str, is_superuser: bool = False) -> None:
+    def __init__(self, username: str, email: str, password: str,
+                 confirmed: bool = False, is_superuser: bool = False) -> None:
         self.email = email
         self.username = username
         self.password = password
         self.is_superuser = is_superuser
+        self.confirmed = confirmed
         self.save()
 
     def __str__(self):

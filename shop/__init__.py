@@ -13,10 +13,13 @@ def create_app(config_filename: str = None):
     app.config.from_pyfile(config_filename)
     Bootstrap(app)
 
+    from shop.email import init_mail
+    init_mail(app)
+
     from shop.products.models import CategoryModel, BrandModel, ProductModel
     from shop.users.models import UserModel
     login_manager = LoginManager(app)
-    login_manager.login_view = 'login'
+    login_manager.login_view = 'users_blueprint.login'
     login_manager.login_message_category = 'info'
 
     @login_manager.user_loader
