@@ -22,13 +22,9 @@ def generate_confirmation_token(email: str):
 
 def confirm_token(token, expiration=3600):
     serializer = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
-    try:
-        email = serializer.loads(
-            token,
-            salt=current_app.config['SECURITY_PASSWORD_SALT'],
-            max_age=expiration
-        )
-    except exc.BadSignature:
-        return None
-    else:
-        return email
+    email = serializer.loads(
+        token,
+        salt=current_app.config['SECURITY_PASSWORD_SALT'],
+        max_age=expiration
+    )
+    return email
