@@ -65,4 +65,5 @@ def seed_admin():
         email='admin@admin.admin',
         password='admin',
         is_superuser=True,
+        confirmed=True,
     )

@@ -5,8 +5,22 @@ from os import getenv
 # Application
 APP_NAME = getenv('APP_NAME')
 SECRET_KEY = getenv('SECRET_KEY')
+SECURITY_PASSWORD_SALT = getenv('SECURITY_PASSWORD_SALT')
 WTF_CSRF_ENABLED = True
 DEBUG = True
+BCRYPT_LOG_ROUNDS = 13
+DEBUG_TB_ENABLED = False
+DEBUG_TB_INTERCEPT_REDIRECTS = False
+
+# mail settings
+MAIL_SERVER = 'smtp.gmail.com'
+MAIL_PORT = 465
+MAIL_USE_TLS = False
+MAIL_USE_SSL = True
+
+# gmail authentication
+MAIL_USERNAME = getenv('MAIL_USERNAME')
+MAIL_PASSWORD = getenv('MAIL_PASSWORD')
 
 # Postgres service
 POSTGRES_DB_HOST = getenv('POSTGRES_DB_HOST')
