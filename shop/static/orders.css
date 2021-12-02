@@ -1,0 +1,73 @@
+.tree-menu, .tree-menu ul {
+    list-style: none;
+    list-style-position: inside;
+}
+
+.tree-menu .submenu-wrapper {
+}
+
+.tree-menu .submenu-wrapper .subtitle {
+    font-size: 1.5em;
+    font-weight: 550;
+}
+
+.tree-menu .submenu-wrapper .submenu {
+    font-size: 1.1em;
+}
+
+.orders-table {
+    border-collapse: collapse;
+    table-layout: fixed;
+    width: 100%;
+    border: 1px solid gray;
+    text-align: center;
+}
+
+.orders-table thead tr td {
+    background-color: #007acc;
+    color: #ffffff;
+    font-size: 20px;
+    font-weight: 550;
+    padding: 8px 0 8px 0;
+    border: 2px solid #404040;
+}
+
+.orders-table tbody tr td {
+    color: #262626;
+    font-size: 18px;
+    border: 1px solid #666666;
+}
+
+.orders-table tbody tr .main-info {
+    font-weight: 550;
+    font-size: 20px;
+    color: #4d4d4d;
+}
+
+.orders-table tbody tr:nth-child(odd) {
+    background-color: #ffffff;
+}
+
+.orders-table tbody tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+.orders-table tbody tr:hover {
+    background-color: #cce4ff;
+}
+
+.btn-complete {
+    width: 100%;
+    height: 100%;
+    background-color: #008ae6;
+    color: #ffffff;
+    font-size: 18px;
+    font-weight: 550;
+    border: 1px solid #666666;
+    border-radius: 0px;
+}
+
+.btn-complete:hover {
+    background-color: #66b3ff;
+    color: #000000;
+}

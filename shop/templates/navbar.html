@@ -11,6 +11,9 @@
             <!-- Navbar Left Side -->
             <div class="navbar-nav mr-auto">
                 <a class="nav-item nav-link" href="{{ url_for('products_blueprint.products') }}">All products</a>
+                {% if current_user.is_authenticated and current_user.is_superuser %}
+                <a class="nav-item nav-link" href="{{ url_for('orders_blueprint.orders_list') }}">Orders</a>
+                {% endif %}
             </div>
 
             <!-- Navbar Right Side -->

@@ -12,6 +12,7 @@ from sqlalchemy.sql.expression import func
 from shop.products.helpers import create_random_image
 from shop.products.models import BrandModel, CategoryModel, ProductModel
 from shop.users.models import UserModel
+from shop.orders.models import OrderModel
 
 
 def seed_brands(n_brands: int = 10) -> None:
@@ -51,7 +52,7 @@ def seed_products(n_products: int = 10) -> None:
             short_description=fake.text(200),
             full_description=fake.text(1000),
             price=randint(100, 1000) / 10,
-            amount=randint(0, 10),
+            amount=randint(1, 25),
             discount=int(randint(1, 10) > 6) * randint(10, 30),
             brand_id=BrandModel.query.order_by(func.random()).first().id,
             category_id=CategoryModel.query.order_by(func.random()).first().id,
@@ -67,3 +68,30 @@ def seed_admin():
         is_superuser=True,
         confirmed=True,
     )
+
+
+def seed_users(n_users: int = 10) -> None:
+    fake = Faker()
+    for _ in range(n_users):
+        UserModel(
+            username=f'{fake.last_name()}_{fake.first_name().lower()}',
+            email=fake.email(),
+            password='1234',
+            confirmed=True,
+        )
+
+
+def seed_orders(n_orders: int = 25) -> None:
+    for _ in range(n_orders):
+        random_user = UserModel.query.order_by(func.random()).first()
+        order = OrderModel.create(user=random_user)
+
+        for product in ProductModel.query.order_by(func.random()).all()[:randint(1, 10)]:
+            if product.available:
+                amount_to_add = randint(1, product.available)
+                product.reserved += amount_to_add
+                product.save()
+                order.add_product(product, amount=amount_to_add)
+
+        if randint(1, 10) > 6:
+            order.complete()

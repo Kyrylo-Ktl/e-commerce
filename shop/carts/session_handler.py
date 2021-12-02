@@ -1,8 +1,10 @@
 """Module with a class for working with a cart stored in a session"""
 
 from flask import session
+from flask_login import current_user
 
 from shop.products.models import ProductModel
+from shop.orders.models import OrderModel, OrderProductModel
 
 
 class SessionCart:
@@ -95,9 +97,18 @@ class SessionCart:
 
     @classmethod
     def clear_cart(cls):
-        for product in cls.get_products().all():
-            product.reserved -= session[cls.CART_NAME][str(product.id)]
-            session[cls.CART_NAME].pop(str(product.id))
+        for product, amount in cls.get_items():
+            product.reserved -= amount
             product.save()
+            session[cls.CART_NAME].pop(str(product.id))
+
+        session.modified = True
+
+    @classmethod
+    def make_order(cls):
+        order = OrderModel.create(user=current_user)
+        for product, amount in cls.get_items():
+            order.add_product(product, amount=amount)
+            session[cls.CART_NAME].pop(str(product.id))
 
         session.modified = True

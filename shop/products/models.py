@@ -15,7 +15,7 @@ from shop.db import db
 class BrandModel(UserMixin, BaseModelMixin):
     """Entity Brand Model"""
 
-    __tablename__ = 'brand'
+    __tablename__ = 'brands'
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), unique=True)
@@ -43,7 +43,7 @@ class BrandModel(UserMixin, BaseModelMixin):
 class CategoryModel(UserMixin, BaseModelMixin):
     """Entity Category Model"""
 
-    __tablename__ = 'category'
+    __tablename__ = 'categories'
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), unique=True)
@@ -93,10 +93,10 @@ class ProductModel(UserMixin, BaseModelMixin):
 
     image_file = db.Column(db.String(64), nullable=False, default=DEFAULT_IMAGE)
 
-    brand_id = db.Column(db.Integer, db.ForeignKey('brand.id'))
+    brand_id = db.Column(db.Integer, db.ForeignKey('brands.id'))
     brand = db.relationship('BrandModel', backref=backref('products', cascade='all,delete'))
 
-    category_id = db.Column(db.Integer, db.ForeignKey('category.id'))
+    category_id = db.Column(db.Integer, db.ForeignKey('categories.id'))
     category = db.relationship('CategoryModel', backref=backref('products', cascade='all,delete'))
 
     __table_args__ = (
@@ -138,14 +138,3 @@ class ProductModel(UserMixin, BaseModelMixin):
     def delete(self) -> None:
         self._delete_image_file()
         return super(ProductModel, self).delete()
-
-    @classmethod
-    def get_pagination(cls, page: int = 1, query: Optional[BaseQuery] = None) -> Pagination:
-        if query is None:
-            query = cls.query
-        return query.order_by(cls.name).paginate(page, cls.PAGINATE_BY, False)
-
-    @classmethod
-    def filter(cls, **kwargs) -> BaseQuery:
-        kwargs = {field: value for field, value in kwargs.items() if value is not None}
-        return cls.query.filter_by(**kwargs)

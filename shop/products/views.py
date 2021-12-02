@@ -51,7 +51,7 @@ def products():
     filtered_products = ProductModel.filter(
         category=CategoryModel.get(name=category_name),
         brand=BrandModel.get(name=brand_name),
-    )
+    ).order_by(ProductModel.name)
     paginator = ProductModel.get_pagination(page, filtered_products)
 
     context = {
