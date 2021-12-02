@@ -40,9 +40,11 @@ def create_app(config_filename: str = None):
         from shop.products.routes import products_blueprint
         from shop.carts.routes import carts_blueprint
         from shop.orders.routes import orders_blueprint
+        from shop.errors.handlers import errors_blueprint
         app.register_blueprint(users_blueprint)
         app.register_blueprint(products_blueprint)
         app.register_blueprint(carts_blueprint)
         app.register_blueprint(orders_blueprint)
+        app.register_blueprint(errors_blueprint)
 
     return app

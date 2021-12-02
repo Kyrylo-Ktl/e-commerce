@@ -104,7 +104,7 @@ class ProductCreateForm(FlaskForm):
         validators=[DataRequired('Enter positive price'), NumberRange(min=0.01, max=1_000_000)],
     )
     amount = IntegerField(
-        'Available amount',
+        'Stock amount',
         validators=[InputRequired("You must enter some amount!"), NumberRange(min=0, max=1_000_000)],
     )
     discount = IntegerField(
@@ -153,7 +153,7 @@ class ProductUpdateForm(ProductCreateForm):
         validators=[DataRequired('Enter positive price'), NumberRange(min=0.01, max=1_000_000)],
     )
     amount = IntegerField(
-        'Available amount',
+        'Stock amount',
         validators=[InputRequired("You must enter some amount!"), NumberRange(min=0, max=1_000_000)],
     )
     discount = IntegerField(
