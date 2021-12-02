@@ -6,7 +6,7 @@
 
 .wrapper {
     display: block;
-	width: 20%;
+	width: 25%;
 	float: left;
 }
 
@@ -181,4 +181,13 @@
     margin: auto;
     margin-top: 1em;
     font-size: 1.5em;
+}
+
+.cart-buttons {
+    width: 100%;
+    text-align: center;
+}
+
+.cart-buttons .cart-btn {
+    display: inline-block;
 }

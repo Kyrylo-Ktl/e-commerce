@@ -1,0 +1,77 @@
+{% extends "layout.html" %}
+
+{% block addition_styles %}
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='orders.css') }}">
+{% endblock addition_styles %}
+
+{% block main %}
+<div class="row mb-4">
+    <div class="col-md-2">
+        <ul class="tree-menu">
+            <li class="submenu-wrapper">
+                <span class="caret subtitle">Statuses:</span>
+                <ul class="submenu">
+                    <li><a href="{{ url_for('orders_blueprint.orders_list') }}">All orders</a></li>
+                    <li><a href="{{ url_for('orders_blueprint.orders_list', completed=False) }}">Pending</a></li>
+                    <li><a href="{{ url_for('orders_blueprint.orders_list', completed=True) }}">Completed</a></li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+
+    <div class="col-md-10">
+        <div class="row">
+            <table class="orders-table">
+                <colgroup>
+                    <col style="width: 20%">
+                    <col style="width: 38%">
+                    <col style="width: 8%">
+                    <col style="width: 12%">
+                    <col style="width: 12%">
+                    <col style="width: 10%">
+                </colgroup>
+
+                <thead>
+                <tr>
+                    <td>Created at</td>
+                    <td>Email</td>
+                    <td>Items</td>
+                    <td>Total</td>
+                    <td>Status</td>
+                    <td>Complete</td>
+                </tr>
+                </thead>
+
+                <tbody>
+                {% for order in orders %}
+                <tr>
+                    <td>{{ order.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                    <td>{{ order.user.email }}</td>
+                    <td class="main-info ">{{ order.total_items }}</td>
+                    <td class="main-info ">${{ order.total_sum }}</td>
+                    {% if order.is_completed %}
+                    <td>Completed</td>
+                    <td>-</td>
+                    {% else %}
+                    <td>Pending</td>
+                    <td>
+                        <form method="POST" action="">
+                            {{ form.hidden_tag() }}
+                            {{ form.order_id(value=order.id) }}
+                            {{ form.submit(class="btn-complete") }}
+                        </form>
+                    </td>
+                    {% endif %}
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="row mt-3">
+            {% from "pagination.html" import render_pagination with context %}
+            {{ render_pagination(pagination, 'orders_blueprint.orders_list', page, **kwargs) }}
+        </div>
+    </div>
+</div>
+{% endblock main %}

@@ -14,7 +14,7 @@ db-logs:
 	docker logs --tail 50 --follow --timestamps db_flask_shop
 
 access-db:
-	docker-compose exec db psql --username=${POSTGRES_USER} --dbname=${POSTGRES_DB}
+	docker-compose exec db psql --username=${POSTGRES_DB_USER} --dbname=${POSTGRES_DB_NAME}
 
 shop-shell:
 	docker exec -it flask_shop sh

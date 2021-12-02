@@ -43,3 +43,11 @@ class UpdateProductAmountForm(FlaskForm):
     new_amount = IntegerField(
         validators=[InputRequired(), NumberRange(min=0)],
     )
+
+
+class ClearCartForm(FlaskForm):
+    submit = SubmitField('Clear cart')
+
+
+class PlaceOrderForm(FlaskForm):
+    submit = SubmitField('Place order')
