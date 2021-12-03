@@ -1,6 +1,5 @@
-"""
-Module with functions for filling the database with random data
-"""
+"""Module with functions for filling the database with random data"""
+
 import os
 from random import randint
 import secrets
@@ -9,8 +8,8 @@ from faker import Faker
 from flask import current_app
 from sqlalchemy.sql.expression import func
 
+from shop.core.utils import create_random_image
 from shop.orders.models import OrderModel
-from shop.products.helpers import create_random_image
 from shop.products.models import BrandModel, CategoryModel, ProductModel
 from shop.users.models import UserModel
 

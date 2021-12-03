@@ -67,10 +67,10 @@ class BaseModelMixin(db.Model):
         return cls.query.filter_by(**kwargs)
 
     @classmethod
-    def get_pagination(cls, page: int = 1, query: Optional[BaseQuery] = None) -> Pagination:
+    def get_pagination(cls, page: int = 1, query: Optional[BaseQuery] = None, paginate_by: int = None) -> Pagination:
         if query is None:
             query = cls.query
-        return query.paginate(page, cls.PAGINATE_BY, False)
+        return query.paginate(page, paginate_by or cls.PAGINATE_BY, False)
 
     def as_dict(self):
         return {col.name: getattr(self, col.name) for col in self.__table__.columns}

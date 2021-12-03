@@ -1,14 +1,19 @@
 """Module with users blueprint and its routes"""
 
-from flask import abort, flash, redirect, render_template, request, url_for
+from flask import flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required, login_user, logout_user
-from itsdangerous import exc
 
 from shop.carts.session_handler import SessionCart
-from shop.email import send_mail
-from shop.users.forms import LoginForm, SignUpForm
-from shop.users.helpers import confirm_token
-from shop.users.helpers import generate_confirmation_token
+from shop.core.utils import save_picture
+from shop.orders.models import OrderModel
+from shop.users.forms import (
+    LoginForm,
+    RequestResetPasswordForm,
+    ResetPasswordForm,
+    SignUpForm,
+    UpdatePasswordForm,
+    UpdateProfileForm,
+)
 from shop.users.models import UserModel
 
 
@@ -23,40 +28,38 @@ def signup():
             username=form.username.data,
             password=form.password.data,
         )
-
-        token = generate_confirmation_token(user.email)
-        confirm_url = url_for('users_blueprint.confirm_email', token=token, _external=True)
-        html = render_template('email/confirm.html', confirm_url=confirm_url)
-
-        send_mail(send_to=[user.email], subject="Confirm your email", html=html)
+        user.send_email_confirmation_mail()
 
         flash('Your account has been created! You are now need to confirm email', 'success')
         return redirect(url_for('products_blueprint.products'))
 
-    return render_template('users/signup.html', title='SignUp', form=form)
+    return render_template('users/signup.html', form=form)
 
 
 def confirm_email(token):
-    if current_user.is_authenticated:
-        return redirect(url_for('products_blueprint.products'))
-
-    try:
-        email = confirm_token(token)
-    except exc.BadSignature:
+    if not UserModel.verify_email_confirmation_token(token):
         flash('The confirmation link is invalid or has expired.', 'danger')
         return redirect(url_for('products_blueprint.products'))
 
-    user = UserModel.get(email=email)
+    flash('You have confirmed your account. Thanks!', 'success')
+    return redirect(url_for('users_blueprint.login'))
+
+
+def reset_password(token):
+    form = ResetPasswordForm()
+    user = UserModel.verify_password_reset_token(token)
+
     if user is None:
-        return abort(404)
-    elif user.confirmed:
-        flash('Account already confirmed. Please login.', 'success')
-        return redirect(url_for('users_blueprint.login'))
-    else:
-        user.confirmed = True
+        flash('The reset link is invalid or has expired.', 'danger')
+        return redirect(url_for('users_blueprint.reset_password_request'))
+
+    if form.validate_on_submit():
+        user.password = form.password.data
         user.save()
-        flash('You have confirmed your account. Thanks!', 'success')
+        flash('Password successfully updated', 'success')
         return redirect(url_for('users_blueprint.login'))
+
+    return render_template('users/reset_password.html', form=form)
 
 
 def login():
@@ -72,17 +75,76 @@ def login():
         elif user and user.check_password(form.password.data):
             login_user(user, remember=form.remember.data)
             SessionCart.init_cart()
-            next_page = request.args.get('next')
+            flash('Successfully logged in', 'success')
 
+            next_page = request.args.get('next')
             if next_page:
                 return redirect(next_page)
-
-            flash('Successfully logged in', 'success')
             return redirect(url_for('products_blueprint.products'))
         else:
             flash('Login Unsuccessful. Please check provided email and password', 'danger')
 
-    return render_template('users/login.html', title='Login', form=form)
+    return render_template('users/login.html', form=form)
+
+
+@login_required
+def profile():
+    form = UpdateProfileForm()
+
+    if form.validate_on_submit():
+        current_user.username = form.username.data
+        current_user.save()
+
+        if current_user.email != form.email.data:
+            current_user.send_email_confirmation_mail(form.email.data)
+
+        if form.picture.data:
+            filename = save_picture(form.picture.data, model=UserModel)
+            current_user.update_image_file(filename)
+
+    elif request.method == 'GET':
+        form = UpdateProfileForm(
+            username=current_user.username,
+            email=current_user.email,
+        )
+
+    page = request.args.get('page', 1, type=int)
+    filtered_orders = OrderModel.filter(
+        user=current_user,
+    ).order_by(OrderModel.created_at.desc())
+    paginator = OrderModel.get_pagination(page, filtered_orders, paginate_by=12)
+
+    context = {
+        'orders': paginator.items,
+        'pagination': paginator,
+        'form': form,
+        'page': page,
+    }
+
+    return render_template('users/profile.html', **context, kwargs={})
+
+
+@login_required
+def update_password():
+    form = UpdatePasswordForm()
+
+    if form.validate_on_submit():
+        current_user.password = form.new_password.data
+        current_user.save()
+        return redirect(url_for('users_blueprint.profile'))
+
+    return render_template('users/update_password.html', form=form)
+
+
+def reset_password_request():
+    form = RequestResetPasswordForm()
+
+    if form.validate_on_submit():
+        user = UserModel.get(email=form.email.data)
+        user.send_password_reset_mail()
+        flash('An email with a reset link has been sent to your email', 'success')
+
+    return render_template('users/reset_password_request.html', form=form)
 
 
 @login_required

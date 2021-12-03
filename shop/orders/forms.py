@@ -1,7 +1,7 @@
 """Module with forms for orders blueprint"""
 
 from flask_wtf import FlaskForm
-from wtforms.fields import IntegerField, SubmitField
+from wtforms.fields import IntegerField
 from wtforms.validators import DataRequired
 
 from shop.core.validators import order_validator

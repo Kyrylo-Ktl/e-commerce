@@ -1,0 +1,42 @@
+.account-img {
+    width: 100%;
+    height: 100%;
+    border: 1px solid #cccccc;
+}
+
+.orders-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 1.3em;
+    font-family: sans-serif;
+    text-align: center;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+}
+
+.orders-table thead tr {
+    background-color: #007acc;
+    color: #ffffff;
+}
+
+.orders-table th,
+.orders-table td {
+    padding: 12px 15px;
+}
+
+.orders-table tbody tr {
+    border-bottom: 1px solid #dddddd;
+}
+
+.orders-table tbody tr:nth-of-type(odd) {
+    background-color: #f6f6f6;
+}
+
+.orders-table tbody tr:last-of-type {
+    border-bottom: 6px solid #007acc;
+}
+
+.orders-table tbody tr:hover {
+    font-weight: bold;
+    color: #007acc;
+    background-color: #e6f3ff;
+}
