@@ -5,9 +5,9 @@ from datetime import datetime
 from sqlalchemy import CheckConstraint
 from sqlalchemy.orm import backref
 
-from shop.products.models import ProductModel
 from shop.core.models import BaseModelMixin
 from shop.db import db
+from shop.products.models import ProductModel
 
 
 class OrderProductModel(BaseModelMixin):
@@ -70,7 +70,7 @@ class OrderModel(BaseModelMixin):
 
     @property
     def total_sum(self):
-        items_sum = sum(order_product.amount * order_product.product.discount_price for order_product in self.products.all())
+        items_sum = sum(ord_pr.amount * ord_pr.product.discount_price for ord_pr in self.products.all())
         return round(items_sum, 2)
 
     def add_product(self, product: ProductModel, amount: int = 1) -> OrderProductModel:

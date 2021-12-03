@@ -2,9 +2,9 @@
 
 from flask import render_template, request
 
+from shop.orders.forms import MakeCompletedForm
 from shop.orders.models import OrderModel
 from shop.users.helpers import admin_required
-from shop.orders.forms import MakeCompletedForm
 
 
 @admin_required

@@ -1,11 +1,10 @@
 """Models for users blueprint"""
 
 import os
-from typing import List, Optional
+from typing import List
 
 from flask import current_app
 from flask_login import UserMixin
-from flask_sqlalchemy import BaseQuery, Pagination
 from sqlalchemy.orm import backref
 
 from shop.core.models import BaseModelMixin

@@ -3,8 +3,8 @@
 from flask import session
 from flask_login import current_user
 
+from shop.orders.models import OrderModel
 from shop.products.models import ProductModel
-from shop.orders.models import OrderModel, OrderProductModel
 
 
 class SessionCart:

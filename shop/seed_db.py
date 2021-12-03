@@ -9,10 +9,10 @@ from faker import Faker
 from flask import current_app
 from sqlalchemy.sql.expression import func
 
+from shop.orders.models import OrderModel
 from shop.products.helpers import create_random_image
 from shop.products.models import BrandModel, CategoryModel, ProductModel
 from shop.users.models import UserModel
-from shop.orders.models import OrderModel
 
 
 def seed_brands(n_brands: int = 10) -> None:

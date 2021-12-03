@@ -2,7 +2,7 @@
 
 from flask import abort, current_app
 from flask_login import current_user
-from itsdangerous import exc, URLSafeTimedSerializer
+from itsdangerous import URLSafeTimedSerializer
 
 
 def admin_required(function):

@@ -1,11 +1,13 @@
 """Module with carts blueprint and its routes"""
 
 from flask import redirect, render_template, url_for
+from flask_login import login_required
 
 from shop.carts.forms import ClearCartForm, PlaceOrderForm, UpdateProductAmountForm
 from shop.carts.session_handler import SessionCart
 
 
+@login_required
 def cart():
     update_amount_form = UpdateProductAmountForm(prefix='update_amount')
     clear_cart_form = ClearCartForm(prefix='clear_cart')

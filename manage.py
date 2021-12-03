@@ -4,7 +4,7 @@ from app import app
 from flask.cli import FlaskGroup
 
 from shop.db import db
-from shop.seed_db import seed_admin, seed_brands, seed_categories, seed_products, seed_users, seed_orders
+from shop.seed_db import seed_admin, seed_brands, seed_categories, seed_orders, seed_products, seed_users
 
 cli = FlaskGroup(app)
 

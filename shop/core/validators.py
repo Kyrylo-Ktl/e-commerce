@@ -2,8 +2,8 @@
 
 from wtforms.validators import ValidationError
 
-from shop.products.models import BrandModel, CategoryModel, ProductModel
 from shop.orders.models import OrderModel
+from shop.products.models import BrandModel, CategoryModel, ProductModel
 
 
 def product_validator(db_field, must_exist=True):
