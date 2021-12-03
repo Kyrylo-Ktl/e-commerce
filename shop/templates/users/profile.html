@@ -1,0 +1,105 @@
+{% extends "layout.html" %}
+
+{% block addition_styles %}
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='profile.css') }}">
+{% endblock addition_styles %}
+
+{% block main %}
+<div class="row">
+    <div class="col-md-1">
+    </div>
+    <div class="col-md-3">
+        <div class="content-section center-div">
+            <img class="rounded-circle account-img" src="{{ url_for('static', filename=current_user.image_file) }}">
+            <div class="media mt-2">
+                <div class="media-body">
+                    <h2 class="account-heading center-text">{{ current_user.username }}</h2>
+                    <p class="text-secondary center-text">{{ current_user.email }}</p>
+                </div>
+            </div>
+
+            <form method="POST" action="" enctype="multipart/form-data">
+                {{ form.hidden_tag() }}
+                <fieldset class="form-group">
+                    <legend class="border-bottom mb-4 center-text">Update info</legend>
+                    {% for field in [form.username, form.email] %}
+                    <div class="form-group">
+                        {{ field.label(class="form-control-label") }}
+
+                        {% if field.errors %}
+                        {{ field(class="form-control form-control-lg is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in field.errors %}
+                            <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        {{ field(class="form-control form-control-lg") }}
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+
+                    <div class="form-group">
+                        {{ form.picture.label() }}
+                        {{ form.picture(class="form-control-file") }}
+                        {% if form.picture.errors %}
+                        {% for error in form.picture.errors %}
+                        <span class="text-danger">{{ error }}</span></br>
+                        {% endfor %}
+                        {% endif %}
+                    </div>
+                </fieldset>
+
+                <div class="form-group">
+                    {{ form.submit(class="btn btn-outline-info full-width") }}
+                    <a href="{{ url_for('users_blueprint.update_password') }}" class="btn btn-danger full-width mt-2">
+                        Change password
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="col-md-7">
+        <div class="row">
+            <table class="orders-table">
+                <colgroup>
+                    <col style="width: 40%">
+                    <col style="width: 15%">
+                    <col style="width: 15%">
+                    <col style="width: 30%">
+                </colgroup>
+
+                <thead>
+                <tr>
+                    <td>Created at</td>
+                    <td>Items</td>
+                    <td>Total</td>
+                    <td>Status</td>
+                </tr>
+                </thead>
+
+                <tbody>
+                {% for order in orders %}
+                <tr>
+                    <td>{{ order.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                    <td class="main-info">{{ order.total_items }}</td>
+                    <td class="main-info">${{ order.total_sum }}</td>
+                    {% if order.is_completed %}
+                    <td>Completed</td>
+                    {% else %}
+                    <td>Pending</td>
+                    {% endif %}
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="row mt-3">
+            {% from "pagination.html" import render_pagination with context %}
+            {{ render_pagination(pagination, 'users_blueprint.profile', page, **kwargs) }}
+        </div>
+    </div>
+</div>
+{% endblock main %}

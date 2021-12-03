@@ -5,8 +5,8 @@ from flask_login import current_user
 
 from shop.carts import forms as cart_forms
 from shop.carts.session_handler import SessionCart
+from shop.core.utils import save_picture
 from shop.products import forms as product_forms
-from shop.products.helpers import save_product_picture
 from shop.products.models import BrandModel, CategoryModel, ProductModel
 from shop.users.helpers import admin_required
 
@@ -142,7 +142,7 @@ def create_product():
         product.category = CategoryModel.get(name=form.category.data)
 
         if form.picture.data:
-            filename = save_product_picture(form.picture.data)
+            filename = save_picture(form.picture.data, model=ProductModel)
             product.image_file = filename
 
         product.save()
@@ -172,7 +172,7 @@ def product_update(product_id: int):
             brand_id=BrandModel.get(name=form.brand.data).id,
         )
         if form.picture.data:
-            filename = save_product_picture(form.picture.data)
+            filename = save_picture(form.picture.data, model=ProductModel)
             product.update_image_file(filename)
 
         return redirect(url_for('products_blueprint.product_detail', product_id=product_id))

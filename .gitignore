@@ -105,6 +105,7 @@ celerybeat.pid
 
 # Databases and files
 */static/products/
+*/static/users/
 *.db
 
 # Environments

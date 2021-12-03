@@ -5,7 +5,6 @@ from os import getenv
 # Application
 APP_NAME = getenv('APP_NAME')
 SECRET_KEY = getenv('SECRET_KEY')
-SECURITY_PASSWORD_SALT = getenv('SECURITY_PASSWORD_SALT')
 WTF_CSRF_ENABLED = True
 DEBUG = True
 BCRYPT_LOG_ROUNDS = 13
