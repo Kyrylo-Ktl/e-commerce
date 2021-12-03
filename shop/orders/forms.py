@@ -14,4 +14,3 @@ class MakeCompletedForm(FlaskForm):
         validators=[DataRequired(), order_validator(db_field='id')],
         render_kw={'hidden': True},
     )
-    submit = SubmitField('Done')

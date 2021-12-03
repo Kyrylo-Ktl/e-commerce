@@ -58,7 +58,7 @@
                         <form method="POST" action="">
                             {{ form.hidden_tag() }}
                             {{ form.order_id(value=order.id) }}
-                            {{ form.submit(class="btn-complete") }}
+                            <button type="submit" class="btn-complete"></button>
                         </form>
                     </td>
                     {% endif %}
