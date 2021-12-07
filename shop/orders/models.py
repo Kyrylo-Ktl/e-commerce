@@ -17,11 +17,13 @@ class OrderProductModel(BaseModelMixin):
     product_id = db.Column(
         db.Integer,
         db.ForeignKey('products.id', ondelete='CASCADE'),
+        nullable=False,
         primary_key=True,
     )
     order_id = db.Column(
         db.Integer,
         db.ForeignKey('orders.id', ondelete='CASCADE'),
+        nullable=False,
         primary_key=True,
     )
     amount = db.Column(db.Integer, default=1)
@@ -47,7 +49,7 @@ class OrderModel(BaseModelMixin):
     is_completed = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     user = db.relationship('UserModel', backref=backref('orders', cascade='all,delete'))
 
     products = db.relationship(
@@ -71,12 +73,13 @@ class OrderModel(BaseModelMixin):
     @property
     def total_sum(self):
         items_sum = sum(ord_pr.amount * ord_pr.product.discount_price for ord_pr in self.products.all())
-        return round(items_sum, 2)
+        items_sum = round(items_sum, 2)
+        return items_sum
 
     def add_product(self, product: ProductModel, amount: int = 1) -> OrderProductModel:
         return OrderProductModel.create(
-            order_id=self.id,
-            product_id=product.id,
+            order=self,
+            product=product,
             amount=amount,
         )
 
