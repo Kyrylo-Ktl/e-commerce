@@ -979,5 +979,241 @@ class CreateProductPageSuperuserTests(SuperuserMixin, CreateProductPageAnonymous
             self.assertEqual('Number must be between 0 and 99.', actual_error)
 
 
+class UpdateBrandPageAnonymousUserTests(ClientRequestsMixin):
+    def tearDown(self):
+        BrandModel.delete_all()
+
+    def test_get_page_for_existing(self):
+        brand = BrandModel.create(**get_random_brand_data())
+
+        with captured_templates(self.app) as templates:
+            response = self.client.get(url_for(
+                'products_blueprint.brand_update',
+                brand_id=brand.id,
+            ), follow_redirects=True)
+
+            self.assertEqual(403, response.status_code)
+            self.assertEqual(brand, BrandModel.get(id=brand.id))
+            self.assertSetEqual({brand}, set(BrandModel.get_all()))
+
+            self.assertEqual(1, len(templates))
+            template, context = templates[0]
+            self.assertEqual('errors/403.html', template.name)
+
+    def test_get_page_for_non_existing(self):
+        with captured_templates(self.app) as templates:
+            response = self.client.get(url_for(
+                'products_blueprint.brand_update',
+                brand_id=randint(1, 10),
+            ), follow_redirects=True)
+
+            self.assertEqual(403, response.status_code)
+            self.assertSetEqual(set(), set(BrandModel.get_all()))
+
+            self.assertEqual(1, len(templates))
+            template, context = templates[0]
+            self.assertEqual('errors/403.html', template.name)
+
+    def test_post_update_brand(self):
+        brand = BrandModel.create(**get_random_brand_data())
+
+        with captured_templates(self.app) as templates:
+            post_data = {
+                'brand_id': brand.id,
+                'brand_name': brand.name,
+                'submit': True,
+            }
+            response = self.client.post(url_for(
+                'products_blueprint.brand_update',
+                brand_id=brand.id,
+            ), data=post_data, follow_redirects=True)
+
+            self.assertEqual(403, response.status_code)
+            self.assertEqual(brand, BrandModel.get(id=brand.id))
+            self.assertSetEqual({brand}, set(BrandModel.get_all()))
+
+            self.assertEqual(1, len(templates))
+            template, context = templates[0]
+            self.assertEqual('errors/403.html', template.name)
+
+
+class UpdateBrandPageUserTests(UserMixin, UpdateBrandPageAnonymousUserTests):
+    pass
+
+
+class UpdateBrandPageSuperuserTests(SuperuserMixin, UpdateBrandPageAnonymousUserTests):
+    def test_get_page_for_existing(self):
+        brand = BrandModel.create(**get_random_brand_data())
+
+        with captured_templates(self.app) as templates:
+            response = self.client.get(url_for(
+                'products_blueprint.brand_update',
+                brand_id=brand.id,
+            ), follow_redirects=True)
+
+            self.assertEqual(200, response.status_code)
+            self.assertEqual(brand, BrandModel.get(id=brand.id))
+            self.assertSetEqual({brand}, set(BrandModel.get_all()))
+
+            self.assertEqual(1, len(templates))
+            template, context = templates[0]
+            self.assertEqual('products/update_brand.html', template.name)
+
+    def test_get_page_for_non_existing(self):
+        with captured_templates(self.app) as templates:
+            response = self.client.get(url_for(
+                'products_blueprint.brand_update',
+                brand_id=randint(1, 10),
+            ), follow_redirects=True)
+
+            self.assertEqual(404, response.status_code)
+            self.assertSetEqual(set(), set(BrandModel.get_all()))
+
+            self.assertEqual(1, len(templates))
+            template, context = templates[0]
+            self.assertEqual('errors/404.html', template.name)
+
+    def test_post_update_brand(self):
+        brand = BrandModel.create(**get_random_brand_data())
+
+        with captured_templates(self.app) as templates:
+            post_data = {
+                'brand_id': brand.id,
+                'brand_name': 'New ' + brand.name,
+                'submit': True,
+            }
+            response = self.client.post(url_for(
+                'products_blueprint.brand_update',
+                brand_id=brand.id,
+            ), data=post_data, follow_redirects=True)
+
+            self.assertEqual(200, response.status_code)
+            self.assertNotEqual('New ' + brand.name, BrandModel.get(id=brand.id).name)
+            self.assertEqual(brand.id, BrandModel.get(id=brand.id).id)
+
+            self.assertEqual(1, len(templates))
+            template, context = templates[0]
+            self.assertEqual('products/products_list.html', template.name)
+            self.assertListEqual([brand], context['brands'])
+
+
+class UpdateCategoryPageAnonymousUserTests(ClientRequestsMixin):
+    def tearDown(self):
+        CategoryModel.delete_all()
+
+    def test_get_page_for_existing(self):
+        category = CategoryModel.create(**get_random_category_data())
+
+        with captured_templates(self.app) as templates:
+            response = self.client.get(url_for(
+                'products_blueprint.category_update',
+                category_id=category.id,
+            ), follow_redirects=True)
+
+            self.assertEqual(403, response.status_code)
+            self.assertEqual(category, CategoryModel.get(id=category.id))
+            self.assertSetEqual({category}, set(CategoryModel.get_all()))
+
+            self.assertEqual(1, len(templates))
+            template, context = templates[0]
+            self.assertEqual('errors/403.html', template.name)
+
+    def test_get_page_for_non_existing(self):
+        with captured_templates(self.app) as templates:
+            response = self.client.get(url_for(
+                'products_blueprint.category_update',
+                category_id=randint(1, 10),
+            ), follow_redirects=True)
+
+            self.assertEqual(403, response.status_code)
+            self.assertSetEqual(set(), set(CategoryModel.get_all()))
+
+            self.assertEqual(1, len(templates))
+            template, context = templates[0]
+            self.assertEqual('errors/403.html', template.name)
+
+    def test_post_update_category(self):
+        category = CategoryModel.create(**get_random_category_data())
+
+        with captured_templates(self.app) as templates:
+            post_data = {
+                'category_id': category.id,
+                'category_name': category.name,
+                'submit': True,
+            }
+            response = self.client.post(url_for(
+                'products_blueprint.category_update',
+                category_id=category.id,
+            ), data=post_data, follow_redirects=True)
+
+            self.assertEqual(403, response.status_code)
+            self.assertEqual(category, CategoryModel.get(id=category.id))
+            self.assertSetEqual({category}, set(CategoryModel.get_all()))
+
+            self.assertEqual(1, len(templates))
+            template, context = templates[0]
+            self.assertEqual('errors/403.html', template.name)
+
+
+class UpdateCategoryPageUserTests(UserMixin, UpdateCategoryPageAnonymousUserTests):
+    pass
+
+
+class UpdateCategoryPageSuperuserTests(SuperuserMixin, UpdateCategoryPageAnonymousUserTests):
+    def test_get_page_for_existing(self):
+        category = CategoryModel.create(**get_random_category_data())
+
+        with captured_templates(self.app) as templates:
+            response = self.client.get(url_for(
+                'products_blueprint.category_update',
+                category_id=category.id,
+            ), follow_redirects=True)
+
+            self.assertEqual(200, response.status_code)
+            self.assertEqual(category, CategoryModel.get(id=category.id))
+            self.assertSetEqual({category}, set(CategoryModel.get_all()))
+
+            self.assertEqual(1, len(templates))
+            template, context = templates[0]
+            self.assertEqual('products/update_category.html', template.name)
+
+    def test_get_page_for_non_existing(self):
+        with captured_templates(self.app) as templates:
+            response = self.client.get(url_for(
+                'products_blueprint.category_update',
+                category_id=randint(1, 10),
+            ), follow_redirects=True)
+
+            self.assertEqual(404, response.status_code)
+            self.assertSetEqual(set(), set(CategoryModel.get_all()))
+
+            self.assertEqual(1, len(templates))
+            template, context = templates[0]
+            self.assertEqual('errors/404.html', template.name)
+
+    def test_post_update_category(self):
+        category = CategoryModel.create(**get_random_category_data())
+
+        with captured_templates(self.app) as templates:
+            post_data = {
+                'category_id': category.id,
+                'category_name': 'New ' + category.name,
+                'submit': True,
+            }
+            response = self.client.post(url_for(
+                'products_blueprint.category_update',
+                category_id=category.id,
+            ), data=post_data, follow_redirects=True)
+
+            self.assertEqual(200, response.status_code)
+            self.assertNotEqual('New ' + category.name, CategoryModel.get(id=category.id).name)
+            self.assertEqual(category.id, CategoryModel.get(id=category.id).id)
+
+            self.assertEqual(1, len(templates))
+            template, context = templates[0]
+            self.assertEqual('products/products_list.html', template.name)
+            self.assertListEqual([category], context['categories'])
+
+
 if __name__ == "__main__":
     unittest.main()
