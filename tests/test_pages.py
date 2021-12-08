@@ -39,9 +39,6 @@ class ProductsPageTests(unittest.TestCase):
     def tearDownClass(cls):
         db.drop_all()
 
-    def setUp(self):
-        pass
-
     def tearDown(self):
         for pr in ProductModel.get_all():
             pr.delete()
@@ -447,7 +444,7 @@ class ProductsPageUserTests(ProductsPageAnonymousUserTests):
 
     def tearDown(self):
         logout(self.client)
-        super(ProductsPageUserTests, self).tearDown()
+        super().tearDown()
 
     def test_add_to_cart_existing_product(self):
         product = ProductModel.create(**get_random_product_data())
@@ -489,7 +486,7 @@ class ProductsPageSuperuserTests(ProductsPageAnonymousUserTests):
 
     def tearDown(self):
         logout(self.client)
-        super(ProductsPageSuperuserTests, self).tearDown()
+        super().tearDown()
 
     def test_delete_existing_product(self):
         product = ProductModel.create(**get_random_product_data())
@@ -556,6 +553,215 @@ class ProductsPageSuperuserTests(ProductsPageAnonymousUserTests):
             template, context = templates[0]
             self.assertEqual([], context['categories'])
             self.assertEqual('products/products_list.html', template.name)
+
+
+class ProductDetailPageAnonymousUserTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.app = create_app('testing')
+        cls.app.app_context().push()
+
+        cls._ctx = cls.app.test_request_context()
+        cls._ctx.push()
+
+        cls.client = cls.app.test_client()
+        db.create_all()
+
+        seed_brands(n_brands=5)
+        seed_categories(n_categories=5)
+
+    @classmethod
+    def tearDownClass(cls):
+        db.drop_all()
+
+    def tearDown(self):
+        for pr in ProductModel.get_all():
+            pr.delete()
+
+    def test_get_page_for_non_existent_product(self):
+        with captured_templates(self.app) as templates:
+            response = self.client.get(url_for(
+                'products_blueprint.product_detail',
+                product_id=randint(1, 10),
+            ))
+
+            self.assertEqual(404, response.status_code)
+
+            self.assertEqual(1, len(templates))
+            template, context = templates[0]
+            self.assertEqual('errors/404.html', template.name)
+
+    def test_get_page_for_existing_product(self):
+        product = ProductModel.create(**get_random_product_data())
+
+        with captured_templates(self.app) as templates:
+            response = self.client.get(url_for(
+                'products_blueprint.product_detail',
+                product_id=product.id,
+            ))
+
+            self.assertEqual(200, response.status_code)
+
+            self.assertEqual(1, len(templates))
+            template, context = templates[0]
+            self.assertEqual('products/product_detail.html', template.name)
+            self.assertEqual(product, context['product'])
+
+    def test_post_add_product_to_cart(self):
+        product = ProductModel.create(**get_random_product_data())
+
+        with captured_templates(self.app) as templates:
+            post_data = {
+                'add_to_card-product_id': product.id,
+                'add_to_card-amount_to_add': randint(1, product.amount),
+                'add_to_card-submit': True,
+            }
+            response = self.client.post(url_for(
+                'products_blueprint.product_detail',
+                product_id=product.id,
+            ), data=post_data)
+
+            self.assertEqual(403, response.status_code)
+
+            self.assertEqual(1, len(templates))
+            template, context = templates[0]
+            self.assertEqual('errors/403.html', template.name)
+
+    def test_post_delete_product(self):
+        product = ProductModel.create(**get_random_product_data())
+
+        with captured_templates(self.app) as templates:
+            post_data = {
+                'delete_product-product_id': product.id,
+                'delete_product-submit': True,
+            }
+            response = self.client.post(url_for(
+                'products_blueprint.product_detail',
+                product_id=product.id,
+            ), data=post_data)
+
+            self.assertEqual(403, response.status_code)
+
+            self.assertEqual(1, len(templates))
+            template, context = templates[0]
+            self.assertEqual('errors/403.html', template.name)
+
+
+class ProductDetailPageUserTests(ProductDetailPageAnonymousUserTests):
+    @classmethod
+    def setUpClass(cls):
+        ProductDetailPageAnonymousUserTests.setUpClass()
+        cls.user_username = fake.name()
+        cls.user_password = secrets.token_hex(16)
+        cls.user_email = fake.email()
+
+        cls.user = UserModel.create(
+            email=cls.user_email,
+            username=cls.user_username,
+            password=cls.user_password,
+            confirmed=True,
+        )
+
+    def setUp(self):
+        login(self.client, self.user_email, self.user_password)
+
+    def tearDown(self):
+        logout(self.client)
+        super().tearDown()
+
+    def test_post_add_product_to_cart(self):
+        product = ProductModel.create(**get_random_product_data())
+        amount_to_add = randint(1, product.amount)
+
+        with captured_templates(self.app) as templates:
+            post_data = {
+                'add_to_card-product_id': product.id,
+                'add_to_card-amount_to_add': amount_to_add,
+                'add_to_card-submit': True,
+            }
+            response = self.client.post(url_for(
+                'products_blueprint.product_detail',
+                product_id=product.id,
+            ), data=post_data)
+
+            self.assertEqual(200, response.status_code)
+            self.assertEqual(amount_to_add, product.reserved)
+
+            self.assertEqual(1, len(templates))
+            template, context = templates[0]
+            self.assertEqual('products/product_detail.html', template.name)
+            self.assertEqual(product, context['product'])
+
+    def test_post_add_product_to_cart_with_too_big_amount(self):
+        product = ProductModel.create(**get_random_product_data())
+        amount_to_add = product.amount + randint(1, 10)
+
+        with captured_templates(self.app) as templates:
+            post_data = {
+                'add_to_card-product_id': product.id,
+                'add_to_card-amount_to_add': amount_to_add,
+                'add_to_card-submit': True,
+            }
+            response = self.client.post(url_for(
+                'products_blueprint.product_detail',
+                product_id=product.id,
+            ), data=post_data)
+
+            self.assertEqual(200, response.status_code)
+            self.assertEqual(0, product.reserved)
+
+            self.assertEqual(1, len(templates))
+            template, context = templates[0]
+            self.assertEqual('products/product_detail.html', template.name)
+            self.assertEqual(product, context['product'])
+
+            expected_error = str(context['add_to_cart_form'].errors['amount_to_add'][0])
+            self.assertEqual('Not enough product to add.', expected_error)
+
+
+class ProductDetailPageSuperuserTests(ProductDetailPageAnonymousUserTests):
+    @classmethod
+    def setUpClass(cls):
+        ProductDetailPageAnonymousUserTests.setUpClass()
+        cls.admin_username = fake.name()
+        cls.admin_password = secrets.token_hex(16)
+        cls.admin_email = fake.email()
+
+        cls.admin = UserModel.create(
+            email=cls.admin_email,
+            username=cls.admin_username,
+            password=cls.admin_password,
+            confirmed=True,
+            is_superuser=True,
+        )
+
+    def setUp(self):
+        login(self.client, self.admin_email, self.admin_password)
+
+    def tearDown(self):
+        logout(self.client)
+        super().tearDown()
+
+    def test_post_delete_product(self):
+        product = ProductModel.create(**get_random_product_data())
+
+        with captured_templates(self.app) as templates:
+            post_data = {
+                'delete_product-product_id': product.id,
+                'delete_product-submit': True,
+            }
+            response = self.client.post(url_for(
+                'products_blueprint.product_detail',
+                product_id=product.id,
+            ), data=post_data, follow_redirects=True)
+
+            self.assertEqual(200, response.status_code)
+            self.assertIsNone(ProductModel.get(id=product.id))
+
+            self.assertEqual(1, len(templates))
+            template, context = templates[0]
+            self.assertEqual('products/products_list.html', template.name)
+            self.assertEqual([], context['products'])
 
 
 if __name__ == "__main__":

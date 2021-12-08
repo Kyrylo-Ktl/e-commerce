@@ -94,9 +94,12 @@ def product_detail(product_id: int):
         return abort(404)
 
     if add_to_cart_form.validate_on_submit():
-        product_id = add_to_cart_form.product_id.data
-        amount = add_to_cart_form.amount_to_add.data
-        SessionCart.add_product(product_id, amount)
+        if current_user.is_authenticated and not current_user.is_superuser:
+            product_id = add_to_cart_form.product_id.data
+            amount = add_to_cart_form.amount_to_add.data
+            SessionCart.add_product(product_id, amount)
+        else:
+            return abort(403)
 
     if delete_product_form.validate_on_submit():
         if current_user.is_authenticated and current_user.is_superuser:
