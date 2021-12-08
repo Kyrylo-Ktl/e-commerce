@@ -197,7 +197,7 @@ class AddOneToCardForm(FlaskForm):
 
     def validate_product_id(_, field) -> None:
         product = ProductModel.get(id=field.data)
-        if product.available < 1:
+        if product is not None and product.available < 1:
             raise ValidationError('Not enough product to add.')
 
 

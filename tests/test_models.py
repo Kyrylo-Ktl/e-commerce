@@ -14,7 +14,9 @@ from shop.seed_db import (
     get_random_user_data,
     seed_brands,
     seed_categories,
-    seed_products, seed_orders, seed_users
+    seed_orders,
+    seed_products,
+    seed_users
 )
 from shop.users.models import UserModel
 
