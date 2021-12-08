@@ -85,7 +85,7 @@ class UserModel(UserMixin, BaseModelMixin):
                 email=token_data['email'],
                 confirmed=True,
             )
-        except:
+        except Exception:
             return False
         return True
 
@@ -98,7 +98,7 @@ class UserModel(UserMixin, BaseModelMixin):
         s = Serializer(current_app.config['SECRET_KEY'])
         try:
             user_id = s.loads(token)['user_id']
-        except:
+        except Exception:
             return None
         return UserModel.get(id=user_id)
 

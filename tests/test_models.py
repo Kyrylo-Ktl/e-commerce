@@ -3,9 +3,8 @@ from random import randint
 import unittest
 
 from sqlalchemy.exc import IntegrityError
+from tests.mixins import BaseTestMixin
 
-from shop import create_app
-from shop.db import db
 from shop.orders.models import OrderModel
 from shop.products.models import ProductModel
 from shop.seed_db import (
@@ -21,20 +20,13 @@ from shop.seed_db import (
 from shop.users.models import UserModel
 
 
-class ProductModelTests(unittest.TestCase):
+class ProductModelTests(BaseTestMixin):
     @classmethod
     def setUpClass(cls):
-        cls.app = create_app('testing')
-        cls.app.app_context().push()
-        db.create_all()
+        super().setUpClass()
         seed_brands(n_brands=10)
         seed_categories(n_categories=10)
         cls.N_PRODUCTS = 5
-
-    @classmethod
-    def tearDownClass(cls):
-        db.reflect()
-        db.drop_all()
 
     def setUp(self):
         seed_products(n_products=self.N_PRODUCTS)
@@ -118,18 +110,11 @@ class ProductModelTests(unittest.TestCase):
         self.assertFalse(os.path.isfile(full_path))
 
 
-class UserModelTests(unittest.TestCase):
+class UserModelTests(BaseTestMixin):
     @classmethod
     def setUpClass(cls):
-        cls.app = create_app('testing')
-        cls.app.app_context().push()
-        db.create_all()
+        super().setUpClass()
         cls.N_USERS = 10
-
-    @classmethod
-    def tearDownClass(cls):
-        db.reflect()
-        db.drop_all()
 
     def test_password_hashing(self):
         user_data = get_random_user_data(create_image=True)
@@ -174,22 +159,15 @@ class UserModelTests(unittest.TestCase):
         self.assertFalse(os.path.isfile(full_path))
 
 
-class OrderModelTests(unittest.TestCase):
+class OrderModelTests(BaseTestMixin):
     @classmethod
     def setUpClass(cls):
-        cls.app = create_app('testing')
-        cls.app.app_context().push()
-        db.create_all()
+        super().setUpClass()
         seed_brands(n_brands=5)
         seed_categories(n_categories=5)
         seed_products(n_products=10)
         seed_users(n_users=1)
         cls.N_ORDERS = 1
-
-    @classmethod
-    def tearDownClass(cls):
-        db.reflect()
-        db.drop_all()
 
     def setUp(self):
         seed_orders(

@@ -1,51 +1,20 @@
 from random import randint
-import secrets
 import unittest
 
 from flask import session
 from flask_login import current_user, login_user, logout_user
+from tests.mixins import ClientRequestsMixin, UserMixin
 
-from shop import create_app
 from shop.carts.session_handler import SessionCart
-from shop.db import db
 from shop.orders.models import OrderModel
 from shop.products.models import ProductModel
 from shop.seed_db import (
-    fake,
     get_random_product_data,
     seed_products
 )
-from shop.users.models import UserModel
 
 
-class SessionCartTests(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        cls.app = create_app('testing')
-        cls.app.app_context().push()
-
-        cls._ctx = cls.app.test_request_context()
-        cls._ctx.push()
-
-        cls.client = cls.app.test_client()
-        db.create_all()
-
-        cls.user_email = fake.email()
-        cls.user_username = fake.name()
-        cls.user_password = secrets.token_hex(nbytes=32)
-
-        cls.user = UserModel.create(
-            email=cls.user_email,
-            username=cls.user_username,
-            password=cls.user_password,
-            confirmed=True,
-        )
-
-    @classmethod
-    def tearDownClass(cls):
-        db.reflect()
-        db.drop_all()
-
+class SessionCartTests(UserMixin, ClientRequestsMixin):
     def setUp(self):
         login_user(self.user)
         SessionCart.init_cart()
@@ -228,7 +197,8 @@ class SessionCartTests(unittest.TestCase):
         for pr in ProductModel.get_all():
             SessionCart.add_product(pr.id, 1)
 
-        self.assertEqual(SessionCart.get_products().all(), ProductModel.get_all())
+        expected_products = set(ProductModel.get_all())
+        self.assertSetEqual(expected_products, set(SessionCart.get_products().all()))
 
     def test_cart_with_many_items_get_items(self):
         n_products = randint(2, 10)
@@ -237,7 +207,8 @@ class SessionCartTests(unittest.TestCase):
         for pr in ProductModel.get_all():
             SessionCart.add_product(pr.id, 1)
 
-        self.assertEqual(SessionCart.get_items(), list(zip(ProductModel.get_all(), [1] * n_products)))
+        expected_items = set(zip(ProductModel.get_all(), [1] * n_products))
+        self.assertSetEqual(expected_items, set(SessionCart.get_items()))
 
     def test_clear_empty_cart(self):
         SessionCart.clear_cart()
@@ -301,11 +272,13 @@ class SessionCartTests(unittest.TestCase):
         order = OrderModel.get_random()
         self.assertEqual(order.user, current_user)
 
-        actual_products = [item.product for item in order.products.all()]
-        self.assertEqual(actual_products, ProductModel.get_all())
+        expected_products = set(ProductModel.get_all())
+        actual_products = set(item.product for item in order.products.all())
+        self.assertSetEqual(expected_products, actual_products)
 
-        actual_amounts = [item.amount for item in order.products.all()]
-        self.assertEqual(actual_amounts, [1] * n_products)
+        expected_amounts = set((pr.id, 1) for pr in ProductModel.get_all())
+        actual_amounts = set((item.product.id, item.amount) for item in order.products.all())
+        self.assertEqual(expected_amounts, actual_amounts)
 
 
 if __name__ == "__main__":
