@@ -42,6 +42,11 @@ class BaseModelMixin(db.Model):
             raise err
 
     @classmethod
+    def delete_all(cls):
+        for instance in cls.get_all():
+            instance.delete()
+
+    @classmethod
     def update(cls, _id, **kwargs) -> None:
         try:
             cls.query.filter_by(id=_id).update(kwargs)

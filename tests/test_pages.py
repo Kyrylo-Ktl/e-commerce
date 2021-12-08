@@ -21,12 +21,9 @@ unittest.TestCase.maxDiff = None
 
 class ProductsPageTests(ClientRequestsMixin):
     def tearDown(self):
-        for pr in ProductModel.get_all():
-            pr.delete()
-        for br in BrandModel.get_all():
-            br.delete()
-        for ct in CategoryModel.get_all():
-            ct.delete()
+        ProductModel.delete_all()
+        BrandModel.delete_all()
+        CategoryModel.delete_all()
 
     def test_get_page_with_no_products(self):
         with captured_templates(self.app) as templates:
@@ -222,12 +219,9 @@ class ProductsPageTests(ClientRequestsMixin):
 
 class ProductsPageAnonymousUserTests(ClientRequestsMixin):
     def tearDown(self):
-        for pr in ProductModel.get_all():
-            pr.delete()
-        for br in BrandModel.get_all():
-            br.delete()
-        for ct in CategoryModel.get_all():
-            ct.delete()
+        ProductModel.delete_all()
+        BrandModel.delete_all()
+        CategoryModel.delete_all()
 
     def test_delete_non_existing_product(self):
         with captured_templates(self.app) as templates:
@@ -485,8 +479,7 @@ class ProductDetailPageAnonymousUserTests(ClientRequestsMixin):
         seed_categories(n_categories=5)
 
     def tearDown(self):
-        for pr in ProductModel.get_all():
-            pr.delete()
+        ProductModel.delete_all()
 
     def test_get_page_for_non_existent_product(self):
         with captured_templates(self.app) as templates:
@@ -633,8 +626,7 @@ class ProductDetailPageSuperuserTests(SuperuserMixin, ProductDetailPageAnonymous
 
 class CreateBrandPageAnonymousUserTests(ClientRequestsMixin):
     def tearDown(self):
-        for br in BrandModel.get_all():
-            br.delete()
+        BrandModel.delete_all()
 
     def test_get_page(self):
         with captured_templates(self.app) as templates:
@@ -661,25 +653,6 @@ class CreateBrandPageAnonymousUserTests(ClientRequestsMixin):
 
             self.assertEqual(403, response.status_code)
             self.assertSetEqual(set(), set(BrandModel.get_all()))
-
-            self.assertEqual(1, len(templates))
-            template, context = templates[0]
-            self.assertEqual('errors/403.html', template.name)
-
-    def test_post_create_brand_with_existing_title(self):
-        brand = BrandModel.create(**get_random_brand_data())
-
-        with captured_templates(self.app) as templates:
-            post_data = {
-                'brand_name': brand.name,
-                'submit': True,
-            }
-            response = self.client.post(url_for(
-                'products_blueprint.create_brand'
-            ), data=post_data, follow_redirects=True)
-
-            self.assertEqual(403, response.status_code)
-            self.assertSetEqual({brand}, set(BrandModel.get_all()))
 
             self.assertEqual(1, len(templates))
             template, context = templates[0]
@@ -749,8 +722,7 @@ class CreateBrandPageSuperuserTests(SuperuserMixin, CreateBrandPageAnonymousUser
 
 class CreateCategoryPageAnonymousUserTests(ClientRequestsMixin):
     def tearDown(self):
-        for ct in CategoryModel.get_all():
-            ct.delete()
+        CategoryModel.delete_all()
 
     def test_get_page(self):
         with captured_templates(self.app) as templates:
@@ -777,25 +749,6 @@ class CreateCategoryPageAnonymousUserTests(ClientRequestsMixin):
 
             self.assertEqual(403, response.status_code)
             self.assertSetEqual(set(), set(CategoryModel.get_all()))
-
-            self.assertEqual(1, len(templates))
-            template, context = templates[0]
-            self.assertEqual('errors/403.html', template.name)
-
-    def test_post_create_category_with_existing_title(self):
-        category = CategoryModel.create(**get_random_category_data())
-
-        with captured_templates(self.app) as templates:
-            post_data = {
-                'category_name': category.name,
-                'submit': True,
-            }
-            response = self.client.post(url_for(
-                'products_blueprint.create_category'
-            ), data=post_data, follow_redirects=True)
-
-            self.assertEqual(403, response.status_code)
-            self.assertSetEqual({category}, set(CategoryModel.get_all()))
 
             self.assertEqual(1, len(templates))
             template, context = templates[0]
@@ -861,6 +814,169 @@ class CreateCategoryPageSuperuserTests(SuperuserMixin, CreateCategoryPageAnonymo
 
             actual_error = str(context['form'].errors['category_name'][0])
             self.assertEqual('Category with such name already exists.', actual_error)
+
+
+class CreateProductPageAnonymousUserTests(ClientRequestsMixin):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        seed_brands(n_brands=5)
+        seed_categories(n_categories=5)
+
+    def tearDown(self):
+        ProductModel.delete_all()
+
+    @staticmethod
+    def random_post_data():
+        post_data = get_random_product_data()
+        post_data.pop('image_file')
+        post_data['brand'] = post_data['brand'].name
+        post_data['category'] = post_data['category'].name
+        post_data['picture'] = None
+        post_data['submit'] = True
+        return post_data
+
+    def test_get_page(self):
+        with captured_templates(self.app) as templates:
+            response = self.client.get(url_for(
+                'products_blueprint.create_product'
+            ), follow_redirects=True)
+
+            self.assertEqual(403, response.status_code)
+            self.assertSetEqual(set(), set(ProductModel.get_all()))
+
+            self.assertEqual(1, len(templates))
+            template, context = templates[0]
+            self.assertEqual('errors/403.html', template.name)
+
+    def test_post_create_product(self):
+        with captured_templates(self.app) as templates:
+            post_data = CreateProductPageAnonymousUserTests.random_post_data()
+            response = self.client.post(url_for(
+                'products_blueprint.create_product'
+            ), data=post_data, follow_redirects=True)
+
+            self.assertEqual(403, response.status_code)
+            self.assertSetEqual(set(), set(ProductModel.get_all()))
+
+            self.assertEqual(1, len(templates))
+            template, context = templates[0]
+            self.assertEqual('errors/403.html', template.name)
+
+
+class CreateProductPageUserTests(UserMixin, CreateProductPageAnonymousUserTests):
+    pass
+
+
+class CreateProductPageSuperuserTests(SuperuserMixin, CreateProductPageAnonymousUserTests):
+    def test_get_page(self):
+        with captured_templates(self.app) as templates:
+            response = self.client.get(url_for(
+                'products_blueprint.create_product'
+            ), follow_redirects=True)
+
+            self.assertEqual(200, response.status_code)
+            self.assertSetEqual(set(), set(ProductModel.get_all()))
+
+            self.assertEqual(1, len(templates))
+            template, context = templates[0]
+            self.assertEqual('products/create_product.html', template.name)
+
+    def test_post_create_product(self):
+        with captured_templates(self.app) as templates:
+            post_data = CreateProductPageAnonymousUserTests.random_post_data()
+            response = self.client.post(url_for(
+                'products_blueprint.create_product'
+            ), data=post_data, follow_redirects=True)
+
+            self.assertEqual(200, response.status_code)
+
+            product = ProductModel.get(name=post_data['name'])
+            self.assertIsNotNone(product)
+            self.assertSetEqual({product}, set(ProductModel.get_all()))
+
+            self.assertEqual(1, len(templates))
+            template, context = templates[0]
+            self.assertEqual('products/product_detail.html', template.name)
+            self.assertEqual(product, context['product'])
+
+    def test_post_create_product_with_existing_title(self):
+        product = ProductModel.create(**get_random_product_data())
+
+        with captured_templates(self.app) as templates:
+            post_data = CreateProductPageAnonymousUserTests.random_post_data()
+            post_data['name'] = product.name
+
+            response = self.client.post(url_for(
+                'products_blueprint.create_product'
+            ), data=post_data, follow_redirects=True)
+
+            self.assertEqual(200, response.status_code)
+            self.assertSetEqual({product}, set(ProductModel.get_all()))
+
+            self.assertEqual(1, len(templates))
+            template, context = templates[0]
+            self.assertEqual('products/create_product.html', template.name)
+
+            actual_error = str(context['form'].errors['name'][0])
+            self.assertEqual('Product with such name already exists.', actual_error)
+
+    def test_post_create_product_with_negative_amount(self):
+        with captured_templates(self.app) as templates:
+            post_data = CreateProductPageAnonymousUserTests.random_post_data()
+            post_data['amount'] = -randint(1, 10)
+
+            response = self.client.post(url_for(
+                'products_blueprint.create_product'
+            ), data=post_data, follow_redirects=True)
+
+            self.assertEqual(200, response.status_code)
+            self.assertSetEqual(set(), set(ProductModel.get_all()))
+
+            self.assertEqual(1, len(templates))
+            template, context = templates[0]
+            self.assertEqual('products/create_product.html', template.name)
+
+            actual_error = str(context['form'].errors['amount'][0])
+            self.assertEqual('Number must be between 0 and 1000000.', actual_error)
+
+    def test_post_create_product_with_negative_price(self):
+        with captured_templates(self.app) as templates:
+            post_data = CreateProductPageAnonymousUserTests.random_post_data()
+            post_data['price'] = -randint(1, 10)
+
+            response = self.client.post(url_for(
+                'products_blueprint.create_product'
+            ), data=post_data, follow_redirects=True)
+
+            self.assertEqual(200, response.status_code)
+            self.assertSetEqual(set(), set(ProductModel.get_all()))
+
+            self.assertEqual(1, len(templates))
+            template, context = templates[0]
+            self.assertEqual('products/create_product.html', template.name)
+
+            actual_error = str(context['form'].errors['price'][0])
+            self.assertEqual('Number must be between 0.01 and 1000000.', actual_error)
+
+    def test_post_create_product_with_invalid_discount(self):
+        with captured_templates(self.app) as templates:
+            post_data = CreateProductPageAnonymousUserTests.random_post_data()
+            post_data['discount'] = -randint(1, 10)
+
+            response = self.client.post(url_for(
+                'products_blueprint.create_product'
+            ), data=post_data, follow_redirects=True)
+
+            self.assertEqual(200, response.status_code)
+            self.assertSetEqual(set(), set(ProductModel.get_all()))
+
+            self.assertEqual(1, len(templates))
+            template, context = templates[0]
+            self.assertEqual('products/create_product.html', template.name)
+
+            actual_error = str(context['form'].errors['discount'][0])
+            self.assertEqual('Number must be between 0 and 99.', actual_error)
 
 
 if __name__ == "__main__":
