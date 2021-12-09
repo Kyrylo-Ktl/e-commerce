@@ -17,14 +17,18 @@ class SessionCart:
         session[cls.CART_NAME] = dict()
 
     @classmethod
+    def is_empty(cls):
+        return session[cls.CART_NAME] == dict()
+
+    @classmethod
     def add_product(cls, product_id: int, amount: int = 1):
         product = ProductModel.get(id=product_id)
         product_id = str(product_id)
 
         if amount <= 0:
-            raise Exception('The amount to add cannot be negative')
+            raise ValueError('The amount to add cannot be negative')
         if amount > product.available:
-            raise Exception('Not enough product to add')
+            raise ValueError('Not enough product to add')
 
         if product_id in session[cls.CART_NAME]:
             session[cls.CART_NAME][product_id] += amount
@@ -41,12 +45,12 @@ class SessionCart:
         product_id = str(product_id)
 
         if amount <= 0:
-            raise Exception('The amount to remove cannot be negative')
+            raise ValueError('The amount to remove cannot be negative')
         if product_id not in session[cls.CART_NAME]:
-            raise Exception('Product not in cart')
+            raise ValueError('Product not in cart')
 
         if session[cls.CART_NAME][product_id] < amount:
-            raise Exception('Not enough product in cart to remove')
+            raise ValueError('Not enough product in cart to remove')
         elif session[cls.CART_NAME][product_id] == amount:
             session[cls.CART_NAME].pop(product_id)
         else:
@@ -106,6 +110,9 @@ class SessionCart:
 
     @classmethod
     def make_order(cls):
+        if not session[cls.CART_NAME]:
+            raise Exception('Unable to place an order from an empty cart')
+
         order = OrderModel.create(user=current_user)
         for product, amount in cls.get_items():
             order.add_product(product, amount=amount)

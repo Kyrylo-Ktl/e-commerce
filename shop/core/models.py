@@ -3,6 +3,7 @@
 from typing import List, Optional
 
 from flask_sqlalchemy import BaseQuery, Pagination
+from sqlalchemy import func
 from sqlalchemy.exc import IntegrityError
 
 from shop.db import db
@@ -41,6 +42,11 @@ class BaseModelMixin(db.Model):
             raise err
 
     @classmethod
+    def delete_all(cls):
+        for instance in cls.get_all():
+            instance.delete()
+
+    @classmethod
     def update(cls, _id, **kwargs) -> None:
         try:
             cls.query.filter_by(id=_id).update(kwargs)
@@ -53,6 +59,10 @@ class BaseModelMixin(db.Model):
     def get(cls, **kwargs):
         instance = cls.query.filter_by(**kwargs).first()
         return instance
+
+    @classmethod
+    def get_random(cls):
+        return cls.query.order_by(func.random()).first()
 
     @classmethod
     def get_or_create(cls, **kwargs):

@@ -34,17 +34,22 @@ class UserModel(UserMixin, BaseModelMixin):
         db.CheckConstraint("email LIKE '%@%'", name='email_constraint'),
     )
 
+    def __str__(self):
+        return f"<User: ('{self.email}', '{self.username}')>"
+
+    def __repr__(self):
+        return f"<User: ('{self.email}', '{self.username}')>"
+
     def __init__(self, username: str, email: str, password: str,
-                 confirmed: bool = False, is_superuser: bool = False) -> None:
+                 confirmed: bool = False, is_superuser: bool = False, image_file: str = None) -> None:
         self.email = email
         self.username = username
         self.password = password
         self.is_superuser = is_superuser
         self.confirmed = confirmed
+        if image_file:
+            self.image_file = image_file
         self.save()
-
-    def __str__(self):
-        return f"<User: ('{self.email}', '{self.username}')>"
 
     @property
     def password(self) -> str:
@@ -80,7 +85,7 @@ class UserModel(UserMixin, BaseModelMixin):
                 email=token_data['email'],
                 confirmed=True,
             )
-        except:
+        except Exception:
             return False
         return True
 
@@ -93,7 +98,7 @@ class UserModel(UserMixin, BaseModelMixin):
         s = Serializer(current_app.config['SECRET_KEY'])
         try:
             user_id = s.loads(token)['user_id']
-        except:
+        except Exception:
             return None
         return UserModel.get(id=user_id)
 
@@ -117,7 +122,7 @@ class UserModel(UserMixin, BaseModelMixin):
             self.image_file = new_image_file
             self.save()
 
-    def _delete_image_file(self) -> None:
+    def _delete_image_file(self):
         if self.image_file != UserModel.DEFAULT_IMAGE:
             image_path = os.path.join(
                 current_app.root_path,
@@ -126,6 +131,6 @@ class UserModel(UserMixin, BaseModelMixin):
             )
             os.remove(image_path)
 
-    def delete(self) -> None:
+    def delete(self):
         self._delete_image_file()
         return super(UserModel, self).delete()

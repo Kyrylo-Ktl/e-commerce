@@ -1,6 +1,6 @@
 """Module with users blueprint and its routes"""
 
-from flask import abort, redirect, render_template, request, url_for
+from flask import abort, flash, redirect, render_template, request, url_for
 from flask_login import current_user
 
 from shop.carts import forms as cart_forms
@@ -25,27 +25,36 @@ def products():
             product_id = delete_product_form.product_id.data
             product = ProductModel.get(id=product_id)
             product.delete()
-        else:
-            return abort(403)
-
-    if add_to_cart_form.validate_on_submit():
-        if current_user.is_authenticated:
-            product_id = add_to_cart_form.product_id.data
-            SessionCart.add_product(product_id, 1)
+            flash(f"Product '{product.name}' deleted", 'warning')
         else:
             return abort(403)
 
     if delete_category_form.validate_on_submit():
-        category_id = delete_category_form.category_id.data
-        category = CategoryModel.get(id=category_id)
-        category.delete()
-        return redirect(url_for('products_blueprint.products'))
+        if current_user.is_authenticated and current_user.is_superuser:
+            category_id = delete_category_form.category_id.data
+            category = CategoryModel.get(id=category_id)
+            category.delete()
+            flash(f"Category '{category.name}' deleted", 'warning')
+            return redirect(url_for('products_blueprint.products'))
+        return abort(403)
 
     if delete_brand_form.validate_on_submit():
-        brand_id = delete_brand_form.brand_id.data
-        brand = BrandModel.get(id=brand_id)
-        brand.delete()
-        return redirect(url_for('products_blueprint.products'))
+        if current_user.is_authenticated and current_user.is_superuser:
+            brand_id = delete_brand_form.brand_id.data
+            brand = BrandModel.get(id=brand_id)
+            brand.delete()
+            flash(f"Brand '{brand.name}' deleted", 'warning')
+            return redirect(url_for('products_blueprint.products'))
+        return abort(403)
+
+    if add_to_cart_form.validate_on_submit():
+        if current_user.is_authenticated and not current_user.is_superuser:
+            product_id = add_to_cart_form.product_id.data
+            product = ProductModel.get(id=product_id)
+            SessionCart.add_product(product_id, 1)
+            flash(f"Product '{product.name}' added to your cart", 'success')
+        else:
+            return abort(403)
 
     page = request.args.get('page', 1, type=int)
     filtered_products = ProductModel.filter(
@@ -53,6 +62,9 @@ def products():
         brand=BrandModel.get(name=brand_name),
     ).order_by(ProductModel.name)
     paginator = ProductModel.get_pagination(page, filtered_products)
+
+    if page < 1 or page > (paginator.pages or 1):
+        return abort(404)
 
     context = {
         'products': paginator.items,
@@ -82,9 +94,12 @@ def product_detail(product_id: int):
         return abort(404)
 
     if add_to_cart_form.validate_on_submit():
-        product_id = add_to_cart_form.product_id.data
-        amount = add_to_cart_form.amount_to_add.data
-        SessionCart.add_product(product_id, amount)
+        if current_user.is_authenticated and not current_user.is_superuser:
+            product_id = add_to_cart_form.product_id.data
+            amount = add_to_cart_form.amount_to_add.data
+            SessionCart.add_product(product_id, amount)
+        else:
+            return abort(403)
 
     if delete_product_form.validate_on_submit():
         if current_user.is_authenticated and current_user.is_superuser:

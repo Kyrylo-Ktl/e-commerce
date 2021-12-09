@@ -1,6 +1,6 @@
 """Module with users blueprint and its routes"""
 
-from flask import flash, redirect, render_template, request, url_for
+from flask import abort, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required, login_user, logout_user
 
 from shop.carts.session_handler import SessionCart
@@ -39,7 +39,7 @@ def signup():
 def confirm_email(token):
     if not UserModel.verify_email_confirmation_token(token):
         flash('The confirmation link is invalid or has expired.', 'danger')
-        return redirect(url_for('products_blueprint.products'))
+        return abort(404)
 
     flash('You have confirmed your account. Thanks!', 'success')
     return redirect(url_for('users_blueprint.login'))

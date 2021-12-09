@@ -5,6 +5,7 @@ from typing import List
 
 from flask import current_app
 from flask_login import UserMixin
+from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import backref
 
 from shop.core.models import BaseModelMixin
@@ -111,11 +112,15 @@ class ProductModel(UserMixin, BaseModelMixin):
     def __repr__(self) -> str:
         return f"<Product: ('{self.name}')>"
 
-    @property
+    @classmethod
+    def get_all(cls) -> List:
+        return cls.query.order_by(cls.name).all()
+
+    @hybrid_property
     def discount_price(self):
         return round(self.price * (1 - self.discount / 100), 2)
 
-    @property
+    @hybrid_property
     def available(self):
         return self.amount - self.reserved
 

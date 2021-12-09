@@ -8,9 +8,11 @@ from flask_login import LoginManager
 from shop.carts.session_handler import SessionCart
 
 
-def create_app(config_filename: str = None):
-    app = Flask(__name__, instance_relative_config=True)
-    app.config.from_pyfile(config_filename)
+def create_app(config_name: str):
+    config_module = f'config.{config_name.capitalize()}Config'
+
+    app = Flask(__name__)
+    app.config.from_object(config_module)
     Bootstrap(app)
 
     from shop.email import init_mail
