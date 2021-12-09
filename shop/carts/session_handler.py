@@ -17,6 +17,10 @@ class SessionCart:
         session[cls.CART_NAME] = dict()
 
     @classmethod
+    def is_empty(cls):
+        return session[cls.CART_NAME] == dict()
+
+    @classmethod
     def add_product(cls, product_id: int, amount: int = 1):
         product = ProductModel.get(id=product_id)
         product_id = str(product_id)

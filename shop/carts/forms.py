@@ -1,9 +1,11 @@
 """Module with forms for carts blueprint"""
 
+from flask import session
 from flask_wtf import FlaskForm
 from wtforms.fields import IntegerField, SubmitField
 from wtforms.validators import DataRequired, InputRequired, NumberRange
 
+from shop.carts.session_handler import SessionCart
 from shop.core.validators import product_validator
 from shop.products.models import ProductModel
 
@@ -43,6 +45,17 @@ class UpdateProductAmountForm(FlaskForm):
     new_amount = IntegerField(
         validators=[InputRequired(), NumberRange(min=0)],
     )
+
+    def validate(self, extra_validators=None) -> bool:
+        if not FlaskForm.validate(self, extra_validators=None):
+            return False
+
+        product = ProductModel.get(id=self.product_id.data)
+        max_amount = product.available + session[SessionCart.CART_NAME].get(str(product.id), 0)
+        if max_amount < self.new_amount.data:
+            self.new_amount.errors.append('Not enough product to add.')
+            return False
+        return True
 
 
 class ClearCartForm(FlaskForm):
