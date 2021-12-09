@@ -1,7 +1,9 @@
 """Module with base database model mixin"""
 
+import os
 from typing import List, Optional
 
+from flask import current_app
 from flask_sqlalchemy import BaseQuery, Pagination
 from sqlalchemy import func
 from sqlalchemy.exc import IntegrityError
@@ -84,3 +86,24 @@ class BaseModelMixin(db.Model):
 
     def as_dict(self):
         return {col.name: getattr(self, col.name) for col in self.__table__.columns}
+
+
+class PictureHandleMixin:
+    def update_image_file(self, new_image_file: str) -> None:
+        if self.image_file != new_image_file:
+            self._delete_image_file()
+            self.image_file = new_image_file
+            self.save()
+
+    def _delete_image_file(self) -> None:
+        if self.image_file != self.DEFAULT_IMAGE:
+            image_path = os.path.join(
+                current_app.root_path,
+                'static',
+                self.image_file,
+            )
+            os.remove(image_path)
+
+    def delete(self) -> None:
+        self._delete_image_file()
+        return super().delete()

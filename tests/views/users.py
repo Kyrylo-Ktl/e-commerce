@@ -1,23 +1,20 @@
 import secrets
-from random import randint
 import unittest
 
 from flask import url_for
-
-from shop.users.models import UserModel
-from tests.mixins import ClientRequestsMixin, SuperuserMixin, UserMixin
+from tests.mixins import ClientRequestsMixin, UserMixin
 from tests.utils import captured_templates, logout
 
 from shop.email import mail
 from shop.orders.models import OrderModel
-from shop.products.models import ProductModel
 from shop.seed_db import (
     fake,
     seed_brands,
     seed_categories,
     seed_orders,
-    seed_products, get_random_user_data,
+    seed_products,
 )
+from shop.users.models import UserModel
 
 unittest.TestCase.maxDiff = None
 
@@ -66,7 +63,7 @@ class SignupPageTests(ClientRequestsMixin):
 
             expected_token = user.generate_email_confirmation_token(post_data['email'])
             expected_url = url_for('users_blueprint.confirm_email', token=expected_token, _external=True)
-            self.assertEqual(expected_url, context['confirm_url'])
+            self.assertEqual(expected_url, context['token_url'])
 
             self.assertEqual(1, len(outbox))
             sent_mail = outbox[0]
@@ -363,7 +360,7 @@ class ProfilePageTests(UserMixin, ClientRequestsMixin):
 
             expected_token = self.user.generate_email_confirmation_token(new_email)
             expected_url = url_for('users_blueprint.confirm_email', token=expected_token, _external=True)
-            self.assertEqual(expected_url, context['confirm_url'])
+            self.assertEqual(expected_url, context['token_url'])
 
             self.assertEqual(1, len(outbox))
             sent_mail = outbox[0]
@@ -460,7 +457,7 @@ class ResetPasswordRequestPageTests(UserMixin, ClientRequestsMixin):
 
             expected_token = self.user.generate_password_reset_token()
             expected_url = url_for('users_blueprint.reset_password', token=expected_token, _external=True)
-            self.assertEqual(expected_url, context['password_reset_url'])
+            self.assertEqual(expected_url, context['token_url'])
 
             self.assertEqual(1, len(outbox))
             sent_mail = outbox[0]

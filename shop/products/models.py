@@ -3,12 +3,11 @@
 import os
 from typing import List
 
-from flask import current_app
 from flask_login import UserMixin
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import backref
 
-from shop.core.models import BaseModelMixin
+from shop.core.models import BaseModelMixin, PictureHandleMixin
 from shop.db import db
 
 
@@ -68,7 +67,7 @@ class CategoryModel(UserMixin, BaseModelMixin):
         return cls.query.order_by(cls.name).all()
 
 
-class ProductModel(UserMixin, BaseModelMixin):
+class ProductModel(UserMixin, PictureHandleMixin, BaseModelMixin):
     """Entity Product Model"""
 
     __tablename__ = 'products'
@@ -117,28 +116,9 @@ class ProductModel(UserMixin, BaseModelMixin):
         return cls.query.order_by(cls.name).all()
 
     @hybrid_property
-    def discount_price(self):
+    def discount_price(self) -> float:
         return round(self.price * (1 - self.discount / 100), 2)
 
     @hybrid_property
-    def available(self):
+    def available(self) -> int:
         return self.amount - self.reserved
-
-    def update_image_file(self, new_image_file: str):
-        if self.image_file != new_image_file:
-            self._delete_image_file()
-            self.image_file = new_image_file
-            self.save()
-
-    def _delete_image_file(self) -> None:
-        if self.image_file != ProductModel.DEFAULT_IMAGE:
-            image_path = os.path.join(
-                current_app.root_path,
-                'static',
-                self.image_file,
-            )
-            os.remove(image_path)
-
-    def delete(self) -> None:
-        self._delete_image_file()
-        return super(ProductModel, self).delete()

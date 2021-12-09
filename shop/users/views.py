@@ -4,7 +4,7 @@ from flask import abort, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required, login_user, logout_user
 
 from shop.carts.session_handler import SessionCart
-from shop.core.utils import save_picture
+from shop.core.utils import save_picture, verify_token
 from shop.orders.models import OrderModel
 from shop.users.forms import (
     LoginForm,
@@ -37,23 +37,31 @@ def signup():
 
 
 def confirm_email(token):
-    if not UserModel.verify_email_confirmation_token(token):
+    token_data = verify_token(token)
+
+    if token_data is None:
         flash('The confirmation link is invalid or has expired.', 'danger')
         return abort(404)
 
+    UserModel.update(
+        _id=token_data['user_id'],
+        email=token_data['email'],
+        confirmed=True,
+    )
     flash('You have confirmed your account. Thanks!', 'success')
     return redirect(url_for('users_blueprint.login'))
 
 
 def reset_password(token):
     form = ResetPasswordForm()
-    user = UserModel.verify_password_reset_token(token)
+    token_data = verify_token(token)
 
-    if user is None:
+    if token_data is None:
         flash('The reset link is invalid or has expired.', 'danger')
         return redirect(url_for('users_blueprint.reset_password_request'))
 
     if form.validate_on_submit():
+        user = UserModel.get(id=token_data['user_id'])
         user.password = form.password.data
         user.save()
         flash('Password successfully updated', 'success')
