@@ -5,7 +5,14 @@ up:
 	docker-compose up -d --build
 
 down:
+	docker-compose exec web python manage.py clear_db
 	docker-compose down
+
+seed_db:
+	docker-compose exec web python manage.py seed_db
+
+clear_db:
+	docker-compose exec web python manage.py clear_db
 
 run-tests:
 	python -m unittest discover -s tests -p 'test_*.py'

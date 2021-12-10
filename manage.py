@@ -4,7 +4,7 @@ from app import app
 from flask.cli import FlaskGroup
 
 from shop.db import db
-from shop.seed_db import seed_admin, seed_brands, seed_categories, seed_orders, seed_products, seed_users
+from shop.seed_db import clear_all, seed_admin, seed_brands, seed_categories, seed_orders, seed_products, seed_users
 
 cli = FlaskGroup(app)
 
@@ -25,6 +25,11 @@ def seed_db():
     seed_users(n_users=25)
     seed_orders(n_orders=90)
     seed_admin()
+
+
+@cli.command("clear_db")
+def clear_db():
+    clear_all()
 
 
 @cli.command("drop_db")

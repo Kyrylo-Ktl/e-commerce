@@ -125,3 +125,11 @@ def seed_orders(n_orders: int = 25, max_products: int = 10, max_product_amount: 
 
         if randint(1, 10) > 6:
             order.complete()
+
+
+def clear_all():
+    OrderModel.delete_all()
+    ProductModel.delete_all()
+    UserModel.delete_all()
+    BrandModel.delete_all()
+    CategoryModel.delete_all()
