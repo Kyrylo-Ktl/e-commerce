@@ -16,6 +16,7 @@
 	margin: 0 20px 20px 0;
 	background: white;
 	text-align: center;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
 }
 
 .discount {
@@ -191,3 +192,27 @@
 .cart-buttons .cart-btn {
     display: inline-block;
 }
+
+.cart-total-table {
+    width: 100%;
+    border: none;
+    text-align: center;
+    font-size: 1.15em;
+    border: 1px solid #cccccc;
+}
+
+.cart-total-table thead tr td,
+.cart-total-table tbody tr td {
+    border: 1px solid #cccccc;
+}
+
+.cart-total-table thead tr td {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #404040;
+}
+
+.cart-total-table tbody tr td {
+    padding: 5px 0 5px 0;
+}
+

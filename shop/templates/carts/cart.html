@@ -11,8 +11,25 @@
         <div>
             <h3 class="center-text">Your cart</h3>
             <hr/>
-            <span>Items: {{ cart_size() }}</span><br/>
-            <span>Total: ${{ cart_total() }}</span>
+            <table class="cart-total-table">
+                <colgroup>
+                    <col style="width: 50%">
+                    <col style="width: 50%">
+                </colgroup>
+
+                <thead>
+                <tr>
+                    <td>Items</td>
+                    <td>Total</td>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>{{ cart_size() }}</td>
+                    <td>${{ cart_total() }}</td>
+                </tr>
+                </tbody>
+            </table>
             <hr/>
             <div class="cart-buttons">
                 <div class="cart-btn">
@@ -30,7 +47,7 @@
             </div>
         </div>
     </div>
-    <div class="col-md-10">
+    <div class="col-md-10 mb-1">
         <ul class="products clearfix">
             {% for item in items %}
             {% set product, amount=item -%}
