@@ -1,3 +1,4 @@
+import os
 from os import getenv
 
 from dotenv import load_dotenv
@@ -7,6 +8,9 @@ load_dotenv()
 
 class Config(object):
     """Base configuration"""
+
+    # Path
+    BASE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'shop')
 
     # Application
     APP_NAME = getenv('APP_NAME')
@@ -66,6 +70,7 @@ class TestingConfig(Config):
 
     WTF_CSRF_ENABLED = False
     DEBUG = False
-
     TESTING = True
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///' + 'test.db'
+
+    # Database uri
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(Config.BASE_DIR, 'test.db')

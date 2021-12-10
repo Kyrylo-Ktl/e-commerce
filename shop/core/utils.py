@@ -4,6 +4,7 @@ import secrets
 
 from flask import current_app
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
+from itsdangerous.exc import BadSignature
 from PIL import Image
 
 
@@ -45,6 +46,6 @@ def verify_token(token):
     s = Serializer(current_app.config['SECRET_KEY'])
     try:
         token_data = s.loads(token)
-    except Exception:
+    except BadSignature:
         return None
     return token_data

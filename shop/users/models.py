@@ -14,7 +14,7 @@ from shop.email import send_token_url_mail
 class UserModel(UserMixin, PictureHandleMixin, BaseModelMixin):
     __tablename__ = 'users'
 
-    IMAGE_DIR = 'users'
+    IMAGE_DIR = __tablename__
     IMAGE_SIZE = (250, 250)
     DEFAULT_IMAGE = os.path.join(
         'default',

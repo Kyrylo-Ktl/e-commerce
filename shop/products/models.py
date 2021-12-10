@@ -73,7 +73,7 @@ class ProductModel(UserMixin, PictureHandleMixin, BaseModelMixin):
     __tablename__ = 'products'
 
     PAGINATE_BY = 8
-    IMAGE_DIR = 'products'
+    IMAGE_DIR = __tablename__
     IMAGE_SIZE = (500, 500)
     DEFAULT_IMAGE = os.path.join(
         'default',
