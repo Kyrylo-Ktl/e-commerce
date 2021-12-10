@@ -7,6 +7,9 @@ up:
 down:
 	docker-compose down
 
+run-tests:
+	python -m unittest discover -s tests -p 'test_*.py'
+
 shop-logs:
 	docker logs --tail 50 --follow --timestamps flask_shop
 
