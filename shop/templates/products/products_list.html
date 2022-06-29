@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+
+{% block addition_styles %}
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='products_list.css') }}">
+{% endblock addition_styles %}
+
+{% block sidebar %}
+<ul class="tree-menu">
+    <li class="submenu-wrapper">
+        <span class="caret subtitle">Categories:</span>
+        <ul class="submenu">
+            {% for category in categories %}
+            <li>
+                {% if current_user.is_authenticated and current_user.is_superuser %}
+                <a class="delete-list-el-button" type="button" data-toggle="modal"
+                   data-target="#deleteCategoryModal" data-whatever="{{ category.id }}"></a>
+                <a class="update-list-el-button"
+                   href="{{ url_for('products_blueprint.category_update', category_id=category.id) }}"></a>
+                {% endif %}
+                <a href="{{ url_for('products_blueprint.products', category_name=category.name) }}">
+                    {{ category.name }}
+                </a>
+            </li>
+            {% endfor %}
+        </ul>
+    </li>
+    <li class="submenu-wrapper">
+        <span class="caret subtitle">Brands:</span>
+        <ul class="submenu">
+            {% for brand in brands %}
+            <li>
+                {% if current_user.is_authenticated and current_user.is_superuser %}
+                <a class="delete-list-el-button" type="button" data-toggle="modal"
+                   data-target="#deleteBrandModal" data-whatever="{{ brand.id }}"></a>
+                <a class="update-list-el-button"
+                   href="{{ url_for('products_blueprint.brand_update', brand_id=brand.id) }}"></a>
+                {% endif %}
+                <a href="{{ url_for('products_blueprint.products', brand_name=brand.name) }}">
+                    {{ brand.name }}
+                </a>
+            </li>
+            {% endfor %}
+        </ul>
+    </li>
+    {% if current_user.is_authenticated and current_user.is_superuser %}
+    <li class="submenu-wrapper">
+        <span class="caret subtitle">Actions:</span>
+        <ul class="submenu">
+            <li><a href="{{ url_for('products_blueprint.create_brand') }}">Add new brand</a></li>
+            <li><a href="{{ url_for('products_blueprint.create_category') }}">Add new category</a></li>
+            <li><a href="{{ url_for('products_blueprint.create_product') }}">Add new product</a></li>
+        </ul>
+    </li>
+    {% endif %}
+</ul>
+{% endblock sidebar %}
+
+{% block content %}
+<ul class="products clearfix">
+    {% for product in products %}
+    <li class="wrapper">
+        <div class="product-inner">
+            <div class="product-wrap">
+                {% if product.discount %}
+                <span class="discount">-{{ product.discount }}% OFF</span>
+                {% endif %}
+                <img src="{{ url_for('static', filename=product.image_file) }}">
+                <div class="actions">
+                    {% if current_user.is_authenticated and current_user.is_superuser %}
+                    <a class="delete" type="button" data-toggle="modal"
+                       data-target="#deleteProductModal" data-whatever="{{ product.id }}"></a>
+                    <a href="{{ url_for('products_blueprint.product_detail', product_id=product.id) }}"
+                       class="view"></a>
+                    <a href="{{ url_for('products_blueprint.product_update',  product_id=product.id) }}"
+                       class="update"></a>
+                    {% elif current_user.is_authenticated and product.available %}
+                    <a href="{{ url_for('products_blueprint.product_detail', product_id=product.id) }}" class="view"
+                       style="width: 50%"></a>
+                    {% set form_id=product.id|string + "_add_to_cart" -%}
+                    <form method="POST" action="" id={{ form_id }}>
+                        {{ add_to_cart_form.hidden_tag() }}
+                        {{ add_to_cart_form.product_id(value=product.id) }}
+                        <a href="javascript:$('#{{ form_id }}').submit();" class="add-to-cart" style="width: 50%"></a>
+                    </form>
+                    {% else %}
+                    <a href="{{ url_for('products_blueprint.product_detail', product_id=product.id) }}" class="view"
+                       style="width: 100%"></a>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="product-info">
+                <h3 class="product-title">
+                    <a href="{{ url_for('products_blueprint.product_detail', product_id=product.id) }}">
+                        {{ product.name }}
+                    </a>
+                </h3>
+                {% if product.discount %}
+                <span class="old-price">$ {{ product.price }}</span>
+                <span class="price">$ {{ product.discount_price }}</span>
+                {% else %}
+                <span class="price">$ {{ product.price }}</span>
+                {% endif %}
+            </div>
+            <div class="product-short-description">
+                <p>{{ product.short_description }}</p>
+            </div>
+        </div>
+    </li>
+    {% endfor %}
+</ul>
+
+{% from "pagination.html" import render_pagination with context %}
+{{ render_pagination(pagination, 'products_blueprint.products', page, **kwargs) }}
+
+{% endblock content %}
+
+<!-- Modals -->
+{% with form=delete_product_form %}
+{% include 'modals/delete_product.html' %}
+{% endwith %}
+
+{% with form=delete_category_form  %}
+{% include 'modals/delete_category.html' %}
+{% endwith %}
+
+{% with form=delete_brand_form %}
+{% include 'modals/delete_brand.html' %}
+{% endwith %}
+
+<!-- Scripts for modals -->
+{% block addition_scripts %}
+<script src="{{ url_for('static', filename='scripts/delete_product_modal.js') }}"></script>
+<script src="{{ url_for('static', filename='scripts/delete_category_modal.js') }}"></script>
+<script src="{{ url_for('static', filename='scripts/delete_brand_modal.js') }}"></script>
+{% endblock addition_scripts %}

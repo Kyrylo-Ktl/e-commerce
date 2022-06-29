@@ -1,0 +1,78 @@
+{% extends "layout.html" %}
+
+{% block addition_styles %}
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='products_detail.css') }}">
+{% endblock addition_styles %}
+
+{% block main %}
+<div class="row">
+    <div class="col-md-12">
+        <article class="media content-section">
+            <div class="media-body">
+                <div class="product-wrapper">
+                    <div class="product-image">
+                        <img src="{{ url_for('static', filename=product.image_file) }}">
+                        {% if current_user.is_authenticated and current_user.is_superuser %}
+                        <div class="actions">
+                            <a class="delete" type="button" data-toggle="modal"
+                               data-target="#deleteProductModal" data-whatever="{{ product.id }}"></a>
+                            <a href="{{ url_for('products_blueprint.product_update', product_id=product.id) }}"
+                               class="update"></a>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="product-info">
+                        <h1 class="product-name">{{ product.name }}</h1>
+                        <hr>
+                        <div class="category-urls">
+                            <p>Brand: {{ product.brand.name }}</p>
+                            <p>Category: {{ product.category.name }}</p>
+                        </div>
+                        <hr>
+                        <div class="product-description">
+                            <p>{{ product.full_description }}</p>
+                        </div>
+                        <hr>
+
+                        {% if current_user.is_authenticated and not current_user.is_superuser %}
+                        {% if product.available %}
+                        <form method="POST" action="">
+                            {{ add_to_cart_form.hidden_tag() }}
+                            {{ add_to_cart_form.product_id(value=product.id) }}
+
+                            <fieldset class="form-group">
+                                <div class="form-group in-a-row">
+                                    {{ add_to_cart_form.amount_to_add.label("Enter the quantity of the item to add to
+                                    the cart,
+                                    (" +
+                                    product.available|string + " available):", class="add-label") }}
+
+                                    {{ add_to_cart_form.amount_to_add(max=product.available, class="add-amount
+                                    form-control") }}
+                                    {{ add_to_cart_form.submit(class="add-button btn btn-success") }}
+                                </div>
+                            </fieldset>
+                        </form>
+                        {% else %}
+                        <span class="available">No product in stock</span>
+                        {% endif %}
+                        {% else %}
+                        <span class="available">Available: <b>{{ product.available }}</b></span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </article>
+    </div>
+</div>
+{% endblock main %}
+
+<!-- Modal -->
+{% with form=delete_product_form %}
+{% include 'modals/delete_product.html' %}
+{% endwith %}
+
+<!-- Script for modals -->
+{% block addition_scripts %}
+<script src="{{ url_for('static', filename='scripts/delete_product_modal.js') }}"></script>
+{% endblock addition_scripts %}

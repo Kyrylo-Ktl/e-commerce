@@ -1,0 +1,12 @@
+{% extends "layout.html" %}
+{% block main %}
+<div class="row">
+    <div class="col-md-3">
+        {% block sidebar %}{% endblock sidebar %}
+    </div>
+    <div class="col-md-9">
+        {% include 'messages.html' %}
+        {% block content %}{% endblock content %}
+    </div>
+</div>
+{% endblock main %}

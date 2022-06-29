@@ -1,0 +1,147 @@
+.tree-menu, .tree-menu ul {
+    list-style: none;
+    list-style-position: inside;
+}
+
+.tree-menu .submenu-wrapper {
+}
+
+.tree-menu .submenu-wrapper .subtitle {
+    font-size: 1.5em;
+    font-weight: 550;
+}
+
+.tree-menu .submenu-wrapper .submenu {
+    font-size: 1.1em;
+}
+
+.products {
+    list-style: none;
+    margin: 0 -20px 0 0;
+	padding: 0;
+}
+
+.wrapper {
+    display: block;
+	width: 25%;
+	float: left;
+}
+
+.product-inner {
+    display: block;
+	position: relative;
+	margin: 0 20px 20px 0;
+	background: white;
+	text-align: center;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+}
+
+.discount {
+    position: absolute;
+    top: 15px;
+    left: 20px;
+    color: #ffffff;
+    background-color: #fe302f;
+    padding: 2px 8px;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+}
+
+.product-inner:hover {
+   border-color: #bca480;
+}
+.product-wrap {
+   position: relative;
+   overflow: hidden;
+   margin-bottom: 15px;
+}
+.product-wrap img {
+   display: block;
+   width: 100%;
+}
+.actions {
+   position: absolute;
+   left: 0;
+   bottom: -25%;
+   width: 100%;
+   background: rgba(59, 62, 67, 0.75);
+   transition: .3s linear;
+}
+.product-inner:hover .actions {
+   bottom: 0;
+}
+.actions a {
+   text-decoration: none;
+   float: left;
+   width: 33.3333%;
+   padding: 1em 0;
+   transition: .2s linear;
+}
+.actions a:hover {
+   background: rgba(59, 62, 67, 0.85);
+}
+.actions a:before {
+   color: #ffffff;
+   font-family: "FontAwesome";
+}
+.add-to-cart:before {
+   content: "\f07a";
+}
+.view:before {
+   content: "\f002";
+}
+.delete:before {
+   content: "\f00d";
+}
+.update:before {
+   content: "\f044";
+}
+.product-info {
+   padding-bottom: 10px;
+}
+.product-short-description {
+   height: 6em;
+   padding-bottom: 10px;
+}
+.product-short-description p {
+    font-size: 0.8em;
+    line-height: 1em;
+    margin: 0 1em 0 1em;
+    text-align: justify;
+}
+.product-title {
+   height: 1em;
+   margin: 0 0 10px 0;
+}
+.product-title a {
+   text-decoration: none;
+   color: #1e1e1e;
+   font-weight: 550;
+   font-size: 14px;
+}
+
+.price {
+   font-size: 1.3em;
+   font-weight: bold;
+   color: #333333;
+}
+
+.old-price {
+   font-size: 1em;
+   font-weight: bold;
+   color: #666666;
+   text-decoration: line-through;
+}
+
+
+.delete-list-el-button:before {
+   font-family: "FontAwesome";
+   content: "\f00d";
+   color: red;
+}
+
+.update-list-el-button:before {
+   font-family: "FontAwesome";
+   content: "\f044";
+   color: gray;
+}

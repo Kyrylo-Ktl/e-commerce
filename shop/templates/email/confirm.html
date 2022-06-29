@@ -1,0 +1,10 @@
+{% extends "email/base.html" %}
+
+{% block content %}
+Your account was successfully created. Please click the link below<br>
+to confirm your email address and activate your account:
+
+<p>
+    <a href="{{ token_url }}">Click here</a>
+</p>
+{% endblock content %}
